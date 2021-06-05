@@ -19,10 +19,10 @@ class Player:
     def __init__(self, last_name, first_name, date_of_birth, gender, rank):
         """Player constructor"""
 
-        self._last_name = last_name
-        self._first_name = first_name
-        self._date_of_birth = date_of_birth
-        self._gender = gender
+        self.last_name = last_name
+        self.first_name = first_name
+        self.date_of_birth = date_of_birth
+        self.gender = gender
         self.rank = rank
 
 
@@ -34,10 +34,12 @@ class Match:
         self.results = "Not set"
 
 
-class Round:
+class Round: #PEUT ETRE A SUPPR?
     """class which represent a round"""
     def __init__(self, ):
-        """"""
+        """Round constructor"""
+
+        self.
 
 
 class Tournament:
@@ -45,7 +47,7 @@ class Tournament:
 
     def __init__(self, name, place, date,
                  round_list, players_index_list, time_controller,
-                 number_of_turns=DEFAULT_NUMBER_OF_TURNS):
+                 number_of_turns=DEFAULT_NUMBER_OF_TURNS, actual_tour_number=0, state=TOURNAMENTS_STATES[0]):
         """Tournament constructor"""
 
         self.name = name
@@ -55,8 +57,8 @@ class Tournament:
         self.round_list = round_list
         self.players_index_list = players_index_list
         self.time_controller = time_controller
-        self.actual_tour_number = 0
-        self.state = TOURNAMENTS_STATES[0]
+        self.actual_tour_number = actual_tour_number
+        self.state = state
 
     def swiss_system(self):
         """Function used to create all players pair for match"""
@@ -70,12 +72,88 @@ class PlayersDataBase:
 
         self.players_list = []
 
-    def load_players_database(self, database_file):
+    def load_players_from_database(self, database_file):
         """Function which load players data from the database"""
 
-    def save_into_players_database(self, database_file):
+        new_players_list = []
+        database = tinydb.TinyDB("chess_database.json")
+        players_table = database.table("players")
+        serialized_players_list = players_table.all()
+
+        for serialized_player in serialized_players_list:
+            new_players_list.append(Player(serialized_player["last_name"],
+                                           serialized_player["first_name"],
+                                           serialized_player["date_of_birth"],
+                                           serialized_player["gender"],
+                                           serialized_player["rank"]))
+        return new_players_list
+
+    def save_players_into_database(self, database_file):
         """Function which save the data into the database"""
+
+        serialized_players_list = []
+        for player in self.players_list:
+            serialized_player = {"last_name": player.last_name,
+                                 "first_name": player.last_name,
+                                 "date_of_birth": player.date_of_birth,
+                                 "gender": player.gender,
+                                 "rank": player.rank}
+
+            serialized_players_list.append(serialized_player)
+
+        database = tinydb.TinyDB("chess_database.json")
+        players_table = database.table("players")
+        players_table.truncate()
+        players_table.insert_multiple(serialized_players_list)
 
 
 class TournamentsDataBase:
-    pass
+    """Class which represent the tournaments database of the club"""
+
+    def __init__(self):
+        """DataBase constructor"""
+
+        self.tournaments_list = []
+
+    def load_tournaments_from_database(self, database_file):
+        """Function which load tournaments data from the database"""
+
+        new_tournaments_list = []
+        database = tinydb.TinyDB("chess_database.json")
+        tournaments_table = database.table("tournaments")
+        serialized_tournaments_list = tournaments_table.all()
+
+        for serialized_tournament in serialized_tournaments_list:
+            new_tournaments_list.append(Tournament(serialized_tournament["name"],
+                                                   serialized_tournament["place"],
+                                                   serialized_tournament["date"],
+                                                   serialized_tournament["round_list"],
+                                                   serialized_tournament["players_index_list"],
+                                                   serialized_tournament["time_controller"],
+                                                   serialized_tournament["number_of_turns"],
+                                                   serialized_tournament["actual_tour_number"],
+                                                   serialized_tournament["state"]))
+
+        return new_tournaments_list
+
+    def save_tournaments_into_database(self, database_file):
+        """Function which save the data into the database"""
+
+        serialized_tournaments_list = []
+        for tournament in self.tournaments_list:
+            serialized_tournament = {"name": tournament.name,
+                                     "place": tournament.place,
+                                     "date": tournament.date,
+                                     "round_list": tournament.round_list,
+                                     "players_index_list": tournament.players_index_list,
+                                     "time_controller": tournament.time_controller,
+                                     "number_of_turns": tournament.number_of_turns,
+                                     "actual_tour_number": tournament.actual_tour_number,
+                                     "state": tournament.state}
+
+            serialized_tournaments_list.append(serialized_tournament)
+
+        database = tinydb.TinyDB("chess_database.json")
+        players_table = database.table("tournament")
+        players_table.truncate()
+        players_table.insert_multiple(serialized_tournaments_list)
