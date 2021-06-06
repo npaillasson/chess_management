@@ -14,3 +14,8 @@ PLAYERS_FIELD_MESSAGE = {"last_name": ["veuillez saisir le nom du joueur: ", "No
                          "first_name": ["veuillez saisir le prénom du joueur: ", "Prénom invalide !"],
                          "date_of_birth": ["veuillez saisir la date de naissance du joueur: ", "date invalide !"],
                          "rank": ["veuillez saisir le rang du joueur: ", "rang invalide !"]}
+
+# list of adapted controllers
+str_controller = ["last_name", "first_name"]
+date_controller = ["date_of_birth"]
+int_controller = ["rank"]
