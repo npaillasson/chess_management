@@ -3,7 +3,7 @@
 
 import os
 import model
-from view import Menu
+from view import ChoiceMenu, FieldMenu, Sign, ValidationMenu
 import time
 from datetime import datetime
 import re
@@ -41,12 +41,15 @@ class Browse:
         self.correction_menu_choices = correction_menu_choices
         self.tournaments_information_correction_menu = tournaments_information_correction_menu
 
-        self.menu = Menu(self.main_menu_choices, self.correction_menu_choices)
+        self.choice_menu = ChoiceMenu()
+        self.correction_menu = ValidationMenu(correction_menu_choices)
+        self.sign = Sign()
+        self.field_menu = FieldMenu()
 
 
     def main_menu_control(self):
         """main menu controller function"""
-        choice = self.menu.main_menu()
+        choice = self.choice_menu.printing_menu(self.main_menu_choices)
         if choice == 0: # Lancer la fonction de creation de joueur
             self.player_creator_control()
         elif choice == 1: # lancer la fonction de création de tournoi
@@ -69,12 +72,19 @@ class Browse:
                     rank = self.player_rank_creator_control()
                     if rank:
                         player_information["rank"] = rank
-                        choice = self.menu.player_validation(player_information,
-                                                             self.correction_menu_choices)
+                        choice = self.correction_menu.\
+                            printing_correction_menu("Nom : {}"
+                                                     "\nPrénom : {} "
+                                                     "\nDate de naissance : {}"
+                                                     "\nRang : {}".
+                                                     format(player_information["last_name"],
+                                                            player_information["first_name"],
+                                                            player_information["date_of_birth"],
+                                                            player_information["rank"]))
                         if choice == 0:
                             print("OK!")
                             self.main_menu_control()
-                        if choice == 1:
+                        elif choice == 1:
                             self.player_creator_control()
                         else:
                             self.main_menu_control()
@@ -92,7 +102,7 @@ class Browse:
         """player last name creator menu controller function"""
 
         while True:
-            last_name = self.menu.player_last_name()
+            last_name = self.field_menu.printing_field("veuillez saisir le nom du joueur: ")
             if last_name == "quit":
                 return None
             elif NAME_CONTROL_EXPRESSION.match(last_name) is not None:
@@ -105,7 +115,7 @@ class Browse:
         """player last name creator menu controller function"""
 
         while True:
-            first_name = self.menu.player_first_name()
+            first_name = self.field_menu.printing_field("veuillez saisir le prénom du joueur: ")
             if first_name == "quit":
                 return None
             elif NAME_CONTROL_EXPRESSION.match(first_name) is not None:
@@ -118,10 +128,10 @@ class Browse:
         """player last name creator menu controller function"""
 
         while True:
-            date_of_birth = self.menu.player_date_of_birth()
+            date_of_birth = self.field_menu.printing_field("veuillez saisir la date de naissance du joueur:")
             if date_of_birth == "quit":
                 return None
-            elif DATE_OF_BIRTH_EXPRESSION.match(date_of_birth) is not None:
+            elif DATE_OF_BIRTH_EXPRESSION.match(date_of_birth) is not None: #a mettre dans verif de date?
 
                 check_date_validity = self.date_checking(date_of_birth)
                 if check_date_validity:
@@ -152,7 +162,7 @@ class Browse:
         """player last name creator menu controller function"""
 
         while True:
-            rank = self.menu.player_rank()
+            rank = self.field_menu.printing_field("veuillez saisir le rang du joueur: ")
             if rank == "quit":
                 return None
             elif RANK_EXPRESSION.match(rank) is not None:

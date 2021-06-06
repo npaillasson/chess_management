@@ -4,26 +4,75 @@
 from simple_term_menu import TerminalMenu
 
 
-class Menu:
-    """Main menu class"""
+class ChoiceMenu:
+    """Choice menu class"""
 
-    def __init__(self, choices_main_menu_list, choices_correction_menu):
+    def __init__(self):
         """Menu Constructor"""
-        self.choices_main_menu_list = choices_main_menu_list
-        self.choices_correction_menu = choices_correction_menu
+        pass
 
-    def main_menu(self):
-        """Function which display the main menu"""
-        main_menu = TerminalMenu(self.choices_main_menu_list, title="Main menu")
-        choice_index = main_menu.show()
-        print(self.choices_main_menu_list[choice_index])
+    def printing_menu(self, choices_list):
+        """Function which display the menu"""
+        menu = TerminalMenu(choices_list)
+        choice_index = menu.show()
         return choice_index
 
-    def player_last_name(self):
+#class qui permet d'afficher un champ à remplir à l'utilisateur
+class FieldMenu:
+    """Field menu class"""
+
+    def __init__(self):
+        """FieldMenu constructor"""
+        pass
+
+    def printing_field(self, message):
+        """Method which print the field"""
+        value = input(message)
+        return value
+
+#class qui permet d'afficher un message
+class Sign:
+    """Sign class"""
+
+    def __init__(self):
+        """Sign class constructor"""
+        pass
+
+    def printing_sign(self, message):
+        """method which print the sign"""
+        print(message)
+
+
+class ValidationMenu(ChoiceMenu):
+    """validation menu class"""
+
+    def __init__(self, validation_choices):
+        """Validation menu constructor"""
+
+        ChoiceMenu.__init__(self)
+        self.validation_choices = validation_choices
+
+    def printing_correction_menu(self, message):
+        print(message)
+        choice = self.printing_menu(self.validation_choices)
+        return choice
+
+
+
+class MainMenu(ChoiceMenu):
+
+    def printing_menu(self):
+        """Function which display the main menu"""
+        main_menu = TerminalMenu(self.menu_choices)
+        choice_index = main_menu.show()
+        print(self.choice[choice_index])
+        return choice_index
+
+#class PlayerLastName():
         """Function which display the player last name menu"""
 
         last_name = input("veuillez saisir le nom du joueur: ")
-        return last_name
+        #return last_name
 
     def player_first_name(self):
         """Function which display the player first name menu"""
