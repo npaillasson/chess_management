@@ -9,7 +9,7 @@ from datetime import datetime
 import re
 
 #permet de vérifier que le nom ne contient que des lettres
-NAME_CONTROL_EXPRESSION = re.compile(r"^[A-Za-z- ]+$")
+STR_CONTROL_EXPRESSION = re.compile(r"^[A-Za-z- ]+$")
 
 #permet de vérifier le format de la date
 DATE_OF_BIRTH_EXPRESSION = re.compile(r"^[0-9]{2}/[0-9]{2}/[0-9]{4}$")
@@ -35,11 +35,16 @@ class Browse:
     #Initi
     def __init__(self, main_menu_choices=MAIN_MENU_CHOICES,
                  correction_menu_choices=CORRECTION_MENU_CHOICES,
-                 tournaments_information_correction_menu=TOURNAMENTS_INFORMATION_CORRECTION_MENU):
+                 tournaments_information_correction_menu=TOURNAMENTS_INFORMATION_CORRECTION_MENU,
+                 str_control_expression = STR_CONTROL_EXPRESSION):
 
+        #menus choices
         self.main_menu_choices = main_menu_choices
         self.correction_menu_choices = correction_menu_choices
         self.tournaments_information_correction_menu = tournaments_information_correction_menu
+
+        #regular expression
+        self.str_control_expression = str_control_expression
 
         self.choice_menu = ChoiceMenu()
         self.correction_menu = ValidationMenu(correction_menu_choices)
@@ -60,7 +65,7 @@ class Browse:
     def player_creator_control(self):
         """function which control the user input"""
         player_information = {}
-        last_name = self.player_last_name_creator_control()
+        last_name = self.str_data_control("nom", "veuillez saisir le nom du joueur: ")
         if last_name:
             player_information["last_name"] = last_name
             first_name = self.player_first_name_creator_control()
@@ -73,14 +78,7 @@ class Browse:
                     if rank:
                         player_information["rank"] = rank
                         choice = self.correction_menu.\
-                            printing_correction_menu("Nom : {}"
-                                                     "\nPrénom : {} "
-                                                     "\nDate de naissance : {}"
-                                                     "\nRang : {}".
-                                                     format(player_information["last_name"],
-                                                            player_information["first_name"],
-                                                            player_information["date_of_birth"],
-                                                            player_information["rank"]))
+                            printing_correction_menu(players_formatting(player_information))
                         if choice == 0:
                             print("OK!")
                             self.main_menu_control()
@@ -98,17 +96,17 @@ class Browse:
             self.main_menu_control()
 
     #fonction secondaire du menu de création des joueur récupère le nom
-    def player_last_name_creator_control(self):
-        """player last name creator menu controller function"""
+    def str_data_control(self, data_name, message):
+        """Method which control str data (exemple : name)"""
 
         while True:
-            last_name = self.field_menu.printing_field("veuillez saisir le nom du joueur: ")
-            if last_name == "quit":
+            str_data = self.field_menu.printing_field(message)
+            if str_data == "quit":
                 return None
-            elif NAME_CONTROL_EXPRESSION.match(last_name) is not None:
-                return last_name
+            elif self.str_control_expression.match(str_data) is not None:
+                return str_data
             else:
-                print("Nom incorect")
+                print("{} incorect".format(data_name))
 
     # fonction secondaire du menu de création des joueur récupère le prénom
     def player_first_name_creator_control(self):
@@ -118,7 +116,7 @@ class Browse:
             first_name = self.field_menu.printing_field("veuillez saisir le prénom du joueur: ")
             if first_name == "quit":
                 return None
-            elif NAME_CONTROL_EXPRESSION.match(first_name) is not None:
+            elif STR_CONTROL_EXPRESSION.match(first_name) is not None:
                 return first_name
             else:
                 print("Prénom incorect")
@@ -169,6 +167,13 @@ class Browse:
                 return rank
             else:
                 print("Le rang rensseigné est incorect")
+
+def players_formatting(player_information):
+    """Function which take a dict with players information and format it"""
+    return "Nom : {}\nPrénom : {} \nDate de naissance : {}\nRang : {}".format(player_information["last_name"],
+                                                                              player_information["first_name"],
+                                                                              player_information["date_of_birth"],
+                                                                              player_information["rank"])
 
 
 
