@@ -39,7 +39,7 @@ class Round: #PEUT ETRE A SUPPR?
     def __init__(self, ):
         """Round constructor"""
 
-        self.
+        #self.
 
 
 class Tournament:
