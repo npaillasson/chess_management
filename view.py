@@ -33,6 +33,7 @@ class FieldMenu:
 
     def printing_field(self, message):
         """Method which print the field"""
+        print("tapez 'quit' pour revenir au menu principale")
         value = input(message)
         return value
 
@@ -67,6 +68,7 @@ class ValidationMenu(ChoiceMenu):
         print(message)
         choice = self.printing_menu_value(validation_choices)
         return choice
+
 
 
 

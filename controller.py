@@ -9,8 +9,7 @@ from datetime import datetime
 import re
 from view import ChoiceMenu, FieldMenu, Sign, ValidationMenu
 from menu import MAIN_MENU_CHOICES, PLAYERS_FIELD_MESSAGE, CORRECTION_MENU_CHOICES,\
-    VALIDATION_MENU_MESSAGE,str_controller, int_controller, date_controller, no_controller, \
-    players_formatting
+    VALIDATION_MENU_MESSAGE, players_formatting
 from model import Player, PlayersDataBase, Tournament, TournamentsDataBase, Match
 
 #permet de vérifier que le nom ne contient que des lettres
@@ -26,6 +25,11 @@ INT_CONTROL_EXPRESSION = re.compile(r"^[0-9]+$")
 TOURNAMENTS_INFORMATION_CORRECTION_MENU = ["Nom", "Lieu", "Date", "Nombre de tours", "Joueurs",
                                            "Contrôle du temps", "Déscription"]
 
+# list of adapted data_controllers ==> A METTRE DANS CONTROLLER
+str_controller = ["last_name", "first_name"]
+date_controller = ["date_of_birth"]
+int_controller = ["rank"]
+no_controller = ["gender"]
 
 class Browse:
     """class which manage the navigation of the user according to his input"""
@@ -57,8 +61,8 @@ class Browse:
         self.field_menu = FieldMenu()
 
         #DataBase
-        self.players_database = players_database
-        self.tournaments_database = tournaments_database
+        self.players_database = players_database()
+        self.tournaments_database = tournaments_database()
 
 
     def main_menu_control(self):
@@ -88,6 +92,7 @@ class Browse:
             printing_correction_menu(players_formatting(player_information))
         if choice == 0:
             print("OK!")
+            self.adding_player_in_database(player_information)
             self.main_menu_control()
         elif choice == 1:
             self.player_creator_control()
@@ -153,17 +158,15 @@ class Browse:
             else:
                 return self.main_menu_control()
 
-if 1==2:
-    #    def adding_player_in_database(self, player_information):
+    def adding_player_in_database(self, player_information):
         """function which add a player into the database"""
-    #        for element in player_information:
+        self.players_database.players_list.append(Player(player_information["last_name"],
+                                                         player_information["first_name"],
+                                                         player_information["date_of_birth"],
+                                                         player_information["gender"],
+                                                         player_information["rank"]))
 
-    #       self.players_database.append()
-
-
-
-
-
+        self.players_database.save_players_into_database("data/database.json")
 
 
 browser = Browse()

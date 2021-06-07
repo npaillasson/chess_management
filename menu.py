@@ -19,12 +19,6 @@ PLAYERS_FIELD_MESSAGE = {"last_name": ["veuillez saisir le nom du joueur: ", "No
 # {"name" : [message, [choice 1, choice 2]], ...]
 VALIDATION_MENU_MESSAGE = {"gender": ["Rensseigner le genre du joueur", ["Femme", "Homme", "Autre"]]}
 
-# list of adapted controllers
-str_controller = ["last_name", "first_name"]
-date_controller = ["date_of_birth"]
-int_controller = ["rank"]
-no_controller = ["gender"]
-
 def players_formatting(player_information):
     """Function which take a dict with players information and format it"""
     return "\nNom : {}\nPrénom : {} \nDate de naissance : {}\nGenre :{}\nRang : {}\n".\

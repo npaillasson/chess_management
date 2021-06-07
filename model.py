@@ -77,7 +77,7 @@ class PlayersDataBase:
                                            serialized_player["date_of_birth"],
                                            serialized_player["gender"],
                                            serialized_player["rank"]))
-        return new_players_list
+        self.players_list = new_players_list
 
     def save_players_into_database(self, database_file):
         """Function which save the data into the database"""
@@ -148,3 +148,4 @@ class TournamentsDataBase:
         players_table = database.table("tournament")
         players_table.truncate()
         players_table.insert_multiple(serialized_tournaments_list)
+
