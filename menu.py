@@ -25,4 +25,13 @@ date_controller = ["date_of_birth"]
 int_controller = ["rank"]
 no_controller = ["gender"]
 
+def players_formatting(player_information):
+    """Function which take a dict with players information and format it"""
+    return "\nNom : {}\nPrénom : {} \nDate de naissance : {}\nGenre :{}\nRang : {}\n".\
+        format(player_information["last_name"],
+               player_information["first_name"],
+               player_information["date_of_birth"],
+               player_information["gender"],
+               player_information["rank"])
+
 #TROUVER UN MOYEN D'AJOUTER LE GENRE!

@@ -9,7 +9,8 @@ from datetime import datetime
 import re
 from view import ChoiceMenu, FieldMenu, Sign, ValidationMenu
 from menu import MAIN_MENU_CHOICES, PLAYERS_FIELD_MESSAGE, CORRECTION_MENU_CHOICES,\
-    VALIDATION_MENU_MESSAGE,str_controller, int_controller, date_controller, no_controller
+    VALIDATION_MENU_MESSAGE,str_controller, int_controller, date_controller, no_controller, \
+    players_formatting
 from model import Player, PlayersDataBase, Tournament, TournamentsDataBase, Match
 
 #permet de vérifier que le nom ne contient que des lettres
@@ -73,38 +74,26 @@ class Browse:
     def player_creator_control(self):
         """function which control the user input"""
         player_information = {}
-        last_name = self.data_controller("last_name")
-        if last_name:
-            player_information["last_name"] = last_name
-            first_name = self.data_controller("first_name")
-            if first_name:
-                player_information["first_name"] = first_name
-                date_of_birth = self.data_controller("date_of_birth")
-                if date_of_birth:
-                    player_information["date_of_birth"] = date_of_birth
-                    gender = self.validation_menu.printing_validation_menu(VALIDATION_MENU_MESSAGE["gender"][0],
-                                                                           VALIDATION_MENU_MESSAGE["gender"][1])
-                    player_information["gender"] = gender
-                    rank = self.data_controller("rank")
-                    if rank:
-                        player_information["rank"] = rank
-                        choice = self.validation_menu.\
-                            printing_correction_menu(players_formatting(player_information))
-                        if choice == 0:
-                            print("OK!")
-                            self.main_menu_control()
-                        elif choice == 1:
-                            self.player_creator_control()
-                        else:
-                            self.main_menu_control()
-                    else:
-                        self.main_menu_control()
-                else:
-                    self.main_menu_control()
-            else:
-                self.main_menu_control()
+        last_name = self.set_menu("last_name")
+        player_information["last_name"] = last_name
+        first_name = self.set_menu("first_name")
+        player_information["first_name"] = first_name
+        date_of_birth = self.set_menu("date_of_birth")
+        player_information["date_of_birth"] = date_of_birth
+        gender = self.set_menu("gender")
+        player_information["gender"] = gender
+        rank = self.set_menu("rank")
+        player_information["rank"] = rank
+        choice = self.validation_menu.\
+            printing_correction_menu(players_formatting(player_information))
+        if choice == 0:
+            print("OK!")
+            self.main_menu_control()
+        elif choice == 1:
+            self.player_creator_control()
         else:
             self.main_menu_control()
+
 
     #fonction secondaire du menu de création des joueur récupère le nom
     def data_controller(self, data_name):
@@ -171,14 +160,6 @@ if 1==2:
 
     #       self.players_database.append()
 
-def players_formatting(player_information):
-    """Function which take a dict with players information and format it"""
-    return "Nom : {}\nPrénom : {} \nDate de naissance : {}\nGenre :{}\nRang : {}".\
-        format(player_information["last_name"],
-               player_information["first_name"],
-               player_information["date_of_birth"],
-               player_information["gender"],
-               player_information["rank"])
 
 
 
