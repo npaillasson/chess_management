@@ -9,7 +9,7 @@ from datetime import datetime
 import re
 from view import ChoiceMenu, FieldMenu, Sign, ValidationMenu
 from menu import MAIN_MENU_CHOICES, PLAYERS_FIELD_MESSAGE, CORRECTION_MENU_CHOICES,\
-    VALIDATION_MENU_MESSAGE,str_controller, int_controller, date_controller
+    VALIDATION_MENU_MESSAGE,str_controller, int_controller, date_controller, no_controller
 from model import Player, PlayersDataBase, Tournament, TournamentsDataBase, Match
 
 #permet de vérifier que le nom ne contient que des lettres
@@ -150,11 +150,26 @@ class Browse:
         else:
             return None
 
-#    def adding_player_in_database(self, player_information):
-    """function which add a player into the database"""
-#        for element in player_information:
+    def set_menu(self, data_name):
+        """Method which allows to set the menu and return the value"""
 
-#       self.players_database.append()
+        if data_name in no_controller:
+            value = self.validation_menu.printing_validation_menu(VALIDATION_MENU_MESSAGE[data_name][0],
+                                                                  VALIDATION_MENU_MESSAGE[data_name][1])
+            return value
+        else:
+            value = self.data_controller(data_name)
+            if value:
+                return value
+            else:
+                return self.main_menu_control()
+
+if 1==2:
+    #    def adding_player_in_database(self, player_information):
+        """function which add a player into the database"""
+    #        for element in player_information:
+
+    #       self.players_database.append()
 
 def players_formatting(player_information):
     """Function which take a dict with players information and format it"""
@@ -164,6 +179,7 @@ def players_formatting(player_information):
                player_information["date_of_birth"],
                player_information["gender"],
                player_information["rank"])
+
 
 
 

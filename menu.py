@@ -23,5 +23,6 @@ VALIDATION_MENU_MESSAGE = {"gender": ["Rensseigner le genre du joueur", ["Femme"
 str_controller = ["last_name", "first_name"]
 date_controller = ["date_of_birth"]
 int_controller = ["rank"]
+no_controller = ["gender"]
 
 #TROUVER UN MOYEN D'AJOUTER LE GENRE!
