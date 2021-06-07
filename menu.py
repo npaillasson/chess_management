@@ -19,6 +19,10 @@ PLAYERS_FIELD_MESSAGE = {"last_name": ["veuillez saisir le nom du joueur: ", "No
 # {"name" : [message, [choice 1, choice 2]], ...]
 VALIDATION_MENU_MESSAGE = {"gender": ["Rensseigner le genre du joueur", ["Femme", "Homme", "Autre"]]}
 
+#SIGN MESSAGE
+welcome_message = "Bienvenue dans chess management !"
+player_already_exists = "Le joueur exist déjà !"
+
 def players_formatting(player_information):
     """Function which take a dict with players information and format it"""
     return "\nNom : {}\nPrénom : {} \nDate de naissance : {}\nGenre :{}\nRang : {}\n".\

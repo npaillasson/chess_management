@@ -2,6 +2,8 @@
 # coding: utf-8
 
 import os
+
+import menu
 import model
 
 import time
@@ -93,7 +95,6 @@ class Browse:
         if choice == 0:
             print("OK!")
             self.adding_player_in_database(player_information)
-            self.main_menu_control()
         elif choice == 1:
             self.player_creator_control()
         else:
@@ -160,13 +161,29 @@ class Browse:
 
     def adding_player_in_database(self, player_information):
         """function which add a player into the database"""
-        self.players_database.players_list.append(Player(player_information["last_name"],
-                                                         player_information["first_name"],
-                                                         player_information["date_of_birth"],
-                                                         player_information["gender"],
-                                                         player_information["rank"]))
 
-        self.players_database.save_players_into_database("data/database.json")
+        new_player = Player(player_information["last_name"],
+                            player_information["first_name"],
+                            player_information["date_of_birth"],
+                            player_information["gender"],
+                            player_information["rank"])
+
+        if self.players_comparator(new_player):
+            self.sign.printing_sign(menu.player_already_exists)
+            self.main_menu_control()
+        else:
+            self.players_database.players_list.append(new_player)
+            self.players_database.save_players_into_database()
+            self.main_menu_control()
+
+    def players_comparator(self, new_player):
+        """fonction that return True if the player 1 is already in the database"""
+
+        player_already_exists = False
+        for player in self.players_database.players_list:
+            if new_player == player:
+                player_already_exists = True
+        return  player_already_exists
 
 
 def program_init():

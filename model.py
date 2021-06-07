@@ -27,6 +27,18 @@ class Player:
         self.gender = gender
         self.rank = rank
 
+    def __eq__(self, other):
+        """Function that allows to check if a player aldready exists"""
+
+        if self.last_name.upper() != other.last_name.upper():
+            return False
+        if self.first_name.upper() != other.first_name.upper():
+            return False
+        if self.date_of_birth != other.date_of_birth:
+            return False
+        else:
+            return True
+
 
 class Match:
     """class which represent a match"""
