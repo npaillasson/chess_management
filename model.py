@@ -10,6 +10,8 @@ TYPE_OF_TIME_CONTROLLER = {"bullet": range(1, 3), "blitz": range(3, 6), "fast_ch
 
 TOURNAMENTS_STATES = ["In progress", "Completed", "aborted"]
 
+DATABASE_PATH = "data/chess_database.json"
+
 list_of_ongoing_tournaments = []
 
 
@@ -63,11 +65,11 @@ class PlayersDataBase:
 
         self.players_list = []
 
-    def load_players_from_database(self, database_file):
+    def load_players_from_database(self, database_file=DATABASE_PATH):
         """Function which load players data from the database"""
 
         new_players_list = []
-        database = tinydb.TinyDB("chess_database.json")
+        database = tinydb.TinyDB(database_file)
         players_table = database.table("players")
         serialized_players_list = players_table.all()
 
@@ -79,7 +81,7 @@ class PlayersDataBase:
                                            serialized_player["rank"]))
         self.players_list = new_players_list
 
-    def save_players_into_database(self, database_file):
+    def save_players_into_database(self, database_file=DATABASE_PATH):
         """Function which save the data into the database"""
 
         serialized_players_list = []
@@ -92,7 +94,7 @@ class PlayersDataBase:
 
             serialized_players_list.append(serialized_player)
 
-        database = tinydb.TinyDB("chess_database.json")
+        database = tinydb.TinyDB(database_file)
         players_table = database.table("players")
         players_table.truncate()
         players_table.insert_multiple(serialized_players_list)
@@ -106,11 +108,11 @@ class TournamentsDataBase:
 
         self.tournaments_list = []
 
-    def load_tournaments_from_database(self, database_file):
+    def load_tournaments_from_database(self, database_file=DATABASE_PATH):
         """Function which load tournaments data from the database"""
 
         new_tournaments_list = []
-        database = tinydb.TinyDB("chess_database.json")
+        database = tinydb.TinyDB(database_file)
         tournaments_table = database.table("tournaments")
         serialized_tournaments_list = tournaments_table.all()
 
@@ -127,7 +129,7 @@ class TournamentsDataBase:
 
         return new_tournaments_list
 
-    def save_tournaments_into_database(self, database_file):
+    def save_tournaments_into_database(self, database_file=DATABASE_PATH):
         """Function which save the data into the database"""
 
         serialized_tournaments_list = []
@@ -144,7 +146,7 @@ class TournamentsDataBase:
 
             serialized_tournaments_list.append(serialized_tournament)
 
-        database = tinydb.TinyDB("chess_database.json")
+        database = tinydb.TinyDB(database_file)
         players_table = database.table("tournament")
         players_table.truncate()
         players_table.insert_multiple(serialized_tournaments_list)

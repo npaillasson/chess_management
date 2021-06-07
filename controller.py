@@ -10,7 +10,7 @@ import re
 from view import ChoiceMenu, FieldMenu, Sign, ValidationMenu
 from menu import MAIN_MENU_CHOICES, PLAYERS_FIELD_MESSAGE, CORRECTION_MENU_CHOICES,\
     VALIDATION_MENU_MESSAGE, players_formatting
-from model import Player, PlayersDataBase, Tournament, TournamentsDataBase, Match
+from model import Player, PlayersDataBase, Tournament, TournamentsDataBase, Match, DATABASE_PATH
 
 #permet de vérifier que le nom ne contient que des lettres
 STR_CONTROL_EXPRESSION = re.compile(r"^[A-Za-z- ]+$")
@@ -167,6 +167,19 @@ class Browse:
                                                          player_information["rank"]))
 
         self.players_database.save_players_into_database("data/database.json")
+
+
+def program_init():
+    """Function that checks if the database already exists"""
+
+    if not os.path.exists("data/"):
+        os.mkdir("data")
+        return False
+    else:
+        if not os.path.exists(DATABASE_PATH):
+            return False
+        else:
+            return True
 
 
 browser = Browse()
