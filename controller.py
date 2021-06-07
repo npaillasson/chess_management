@@ -9,7 +9,8 @@ from datetime import datetime
 import re
 from view import ChoiceMenu, FieldMenu, Sign, ValidationMenu
 from menu import MAIN_MENU_CHOICES, PLAYERS_FIELD_MESSAGE, CORRECTION_MENU_CHOICES,\
-    str_controller, int_controller, date_controller
+    VALIDATION_MENU_MESSAGE,str_controller, int_controller, date_controller
+from model import Player, PlayersDataBase, Tournament, TournamentsDataBase, Match
 
 #permet de vérifier que le nom ne contient que des lettres
 STR_CONTROL_EXPRESSION = re.compile(r"^[A-Za-z- ]+$")
@@ -34,7 +35,9 @@ class Browse:
                  tournaments_information_correction_menu=TOURNAMENTS_INFORMATION_CORRECTION_MENU,
                  str_control_expression=STR_CONTROL_EXPRESSION,
                  date_control_expression=DATE_CONTROL_EXPRESSION,
-                 int_control_expression=INT_CONTROL_EXPRESSION):
+                 int_control_expression=INT_CONTROL_EXPRESSION,
+                 players_database=PlayersDataBase,
+                 tournaments_database=TournamentsDataBase):
 
         #menus choices
         self.main_menu_choices = main_menu_choices
@@ -46,15 +49,20 @@ class Browse:
         self.date_control_expression = date_control_expression
         self.int_control_expression = int_control_expression
 
+        #View instaciation
         self.choice_menu = ChoiceMenu()
-        self.correction_menu = ValidationMenu(correction_menu_choices)
+        self.validation_menu = ValidationMenu(correction_menu_choices)
         self.sign = Sign()
         self.field_menu = FieldMenu()
+
+        #DataBase
+        self.players_database = players_database
+        self.tournaments_database = tournaments_database
 
 
     def main_menu_control(self):
         """main menu controller function"""
-        choice = self.choice_menu.printing_menu(self.main_menu_choices)
+        choice = self.choice_menu.printing_menu_index(self.main_menu_choices)
         if choice == 0: # Lancer la fonction de creation de joueur
             self.player_creator_control()
         elif choice == 1: # lancer la fonction de création de tournoi
@@ -74,10 +82,13 @@ class Browse:
                 date_of_birth = self.data_controller("date_of_birth")
                 if date_of_birth:
                     player_information["date_of_birth"] = date_of_birth
+                    gender = self.validation_menu.printing_validation_menu(VALIDATION_MENU_MESSAGE["gender"][0],
+                                                                           VALIDATION_MENU_MESSAGE["gender"][1])
+                    player_information["gender"] = gender
                     rank = self.data_controller("rank")
                     if rank:
                         player_information["rank"] = rank
-                        choice = self.correction_menu.\
+                        choice = self.validation_menu.\
                             printing_correction_menu(players_formatting(player_information))
                         if choice == 0:
                             print("OK!")
@@ -113,7 +124,7 @@ class Browse:
                     return data
                 else:
                     self.sign.printing_sign(PLAYERS_FIELD_MESSAGE[data_name][1])
-            else:
+            elif data_name in int_controller:
                 if self.int_control_expression.match(data) is not None:
                     return data
                 else:
@@ -139,12 +150,20 @@ class Browse:
         else:
             return None
 
+#    def adding_player_in_database(self, player_information):
+    """function which add a player into the database"""
+#        for element in player_information:
+
+#       self.players_database.append()
+
 def players_formatting(player_information):
     """Function which take a dict with players information and format it"""
-    return "Nom : {}\nPrénom : {} \nDate de naissance : {}\nRang : {}".format(player_information["last_name"],
-                                                                              player_information["first_name"],
-                                                                              player_information["date_of_birth"],
-                                                                              player_information["rank"])
+    return "Nom : {}\nPrénom : {} \nDate de naissance : {}\nGenre :{}\nRang : {}".\
+        format(player_information["last_name"],
+               player_information["first_name"],
+               player_information["date_of_birth"],
+               player_information["gender"],
+               player_information["rank"])
 
 
 

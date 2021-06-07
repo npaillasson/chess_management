@@ -33,15 +33,6 @@ class Match:
         self.players = [player_1, player_2]
         self.results = "Not set"
 
-
-class Round: #PEUT ETRE A SUPPR?
-    """class which represent a round"""
-    def __init__(self, ):
-        """Round constructor"""
-
-        #self.
-
-
 class Tournament:
     """class which represent a tournament"""
 
