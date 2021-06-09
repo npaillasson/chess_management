@@ -60,14 +60,33 @@ class ValidationMenu(ChoiceMenu):
         self.validation_choices = validation_choices
 
     def printing_correction_menu(self, message):
+        """function wich displays a choice menu to confirm, cancel or correct an entry
+        ex: name = John
+        are you sure?
+        - Confirm
+        - Correct
+        - Cancel"""
+
         print(message)
         choice = self.printing_menu_index(self.validation_choices)
         return choice
 
-    def printing_validation_menu(self, message, validation_choices):
+    def printing_proposal_menu(self, message, validation_choices, index=True):
+        """function which displays a proposal menu. it is a choice menu with a contextual message. return a value.
+        ex: please select the gender of the player:
+        -Man
+        -Woman
+        -Else
+
+        if index is True, the function return the index of the value. If not, the function return the value"""
+
         print(message)
-        choice = self.printing_menu_value(validation_choices)
+        if index:
+            choice = self.printing_menu_index(validation_choices)
+        else:
+            choice = self.printing_menu_value(validation_choices)
         return choice
+
 
 
 

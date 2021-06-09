@@ -3,9 +3,11 @@
 
 
 # MENUS CHOICES
+# list which contains the choices of the main menu
 MAIN_MENU_CHOICES = ["Créer un joueur", "Créer un tournoi", "Gérer un tournoi en cours",
                      "Générer des rapports", "Règlages", "Quitter le logiciel"]
 
+# list which contains the choices of the "correction menu"
 CORRECTION_MENU_CHOICES = ["Valider !", "Corriger", "Annuler"]
 
 # FIELD MENUS MESSAGE (key = data name, value = list which contains all message about data)
@@ -25,11 +27,9 @@ player_already_exists = "Le joueur exist déjà !"
 
 def players_formatting(player_information):
     """Function which take a dict with players information and format it"""
-    return "\nNom : {}\nPrénom : {} \nDate de naissance : {}\nGenre :{}\nRang : {}\n".\
+    return "\nNom : {}\nPrénom : {} \nDate de naissance : {}\nGenre : {}\nRang : {}\n".\
         format(player_information["last_name"],
                player_information["first_name"],
                player_information["date_of_birth"],
                player_information["gender"],
                player_information["rank"])
-
-#TROUVER UN MOYEN D'AJOUTER LE GENRE!
