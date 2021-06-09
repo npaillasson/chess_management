@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 # coding: utf-8
 
-import os
 import tinydb
 from abc import ABC
 
@@ -31,7 +30,7 @@ class Player:
         self.rank = rank
 
     def __eq__(self, other):
-        """Function that allows to check if a player aldready exists"""
+        """Function that allows to check if a player already exists"""
 
         if not isinstance(other, Player):
             return False
@@ -51,6 +50,7 @@ class Match:
         """Match constructor"""
         self.players = [player_1, player_2]
         self.results = "Not set"
+
 
 class Tournament:
     """class which represent a tournament"""
@@ -73,12 +73,14 @@ class Tournament:
     def swiss_system(self):
         """Function used to create all players pair for match"""
 
+
 class DAO(ABC):
-    """Abstract DAO Classe"""
+    """Abstract DAO Class"""
 
     def __init__(self, dao=DAO_OBJECT):
         """DOA constructor"""
         self.dao = dao
+
 
 class PlayersDataBase(DAO):
     """Class which represent the players database of the club"""
@@ -88,13 +90,13 @@ class PlayersDataBase(DAO):
 
         DAO.__init__(self)
         self.players_list = []
+        self.players_table = self.dao.table("players")
 
-    def load_players_from_database(self):
+    def load_dao(self):
         """Function which load players data from the database"""
 
         new_players_list = []
-        players_table = self.dao.table("players")
-        serialized_players_list = players_table.all()
+        serialized_players_list = self.players_table.all()
 
         for serialized_player in serialized_players_list:
             new_players_list.append(Player(serialized_player["last_name"],
@@ -104,22 +106,21 @@ class PlayersDataBase(DAO):
                                            serialized_player["rank"]))
         self.players_list = new_players_list
 
-    def save_players_into_database(self):
+    def save_dao(self):
         """Function which save the data into the database"""
 
         serialized_players_list = []
         for player in self.players_list:
             serialized_player = {"last_name": player.last_name,
-                                 "first_name": player.last_name,
+                                 "first_name": player.first_name,
                                  "date_of_birth": player.date_of_birth,
                                  "gender": player.gender,
                                  "rank": player.rank}
 
             serialized_players_list.append(serialized_player)
 
-        players_table = self.dao.table("players")
-        players_table.truncate()
-        players_table.insert_multiple(serialized_players_list)
+        self.players_table.truncate()
+        self.players_table.insert_multiple(serialized_players_list)
 
     def players_exists(self, new_player):
         """function that return True if the player 1 is already in the database"""
@@ -138,13 +139,13 @@ class TournamentsDataBase(DAO):
 
         DAO.__init__(self)
         self.tournaments_list = []
+        self.tournaments_table = self.dao.table("tournaments")
 
-    def load_tournaments_from_database(self):
+    def load_dao(self):
         """Function which load tournaments data from the database"""
 
         new_tournaments_list = []
-        tournaments_table = self.dao.table("tournaments")
-        serialized_tournaments_list = tournaments_table.all()
+        serialized_tournaments_list = self.tournaments_table.all()
 
         for serialized_tournament in serialized_tournaments_list:
             new_tournaments_list.append(Tournament(serialized_tournament["name"],
@@ -159,7 +160,7 @@ class TournamentsDataBase(DAO):
 
         return new_tournaments_list
 
-    def save_tournaments_into_database(self):
+    def save_dao(self):
         """Function which save the data into the database"""
 
         serialized_tournaments_list = []
@@ -176,7 +177,5 @@ class TournamentsDataBase(DAO):
 
             serialized_tournaments_list.append(serialized_tournament)
 
-        players_table = self.dao.table("tournament")
-        players_table.truncate()
-        players_table.insert_multiple(serialized_tournaments_list)
-
+        self.tournaments_table.truncate()
+        self.tournaments_table.insert_multiple(serialized_tournaments_list)

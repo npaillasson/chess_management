@@ -11,19 +11,22 @@ class ChoiceMenu:
         """Menu Constructor"""
         pass
 
-    def printing_menu_index(self, choices_list):
+    @staticmethod
+    def printing_menu_index(choices_list):
         """Function which display the menu"""
         menu = TerminalMenu(choices_list)
         choice_index = menu.show()
         return choice_index
 
-    def printing_menu_value(self, choices_list):
+    @staticmethod
+    def printing_menu_value(choices_list):
         menu = TerminalMenu(choices_list)
         choice_index = menu.show()
         choice_value = choices_list[choice_index]
         return choice_value
 
-#class qui permet d'afficher un champ à remplir à l'utilisateur
+
+# class that allows to display a field to fill to the user
 class FieldMenu:
     """Field menu class"""
 
@@ -31,13 +34,15 @@ class FieldMenu:
         """FieldMenu constructor"""
         pass
 
-    def printing_field(self, message):
+    @staticmethod
+    def printing_field(message):
         """Method which print the field"""
-        print("tapez 'quit' pour revenir au menu principale")
+        print("taper 'quit' pour revenir au menu principale")
         value = input(message)
         return value
 
-#class qui permet d'afficher un message
+
+# class that allows to display a message
 class Sign:
     """Sign class"""
 
@@ -45,7 +50,8 @@ class Sign:
         """Sign class constructor"""
         pass
 
-    def printing_sign(self, message):
+    @staticmethod
+    def printing_sign(message):
         """method which print the sign"""
         print(message)
 
@@ -60,7 +66,7 @@ class ValidationMenu(ChoiceMenu):
         self.validation_choices = validation_choices
 
     def printing_correction_menu(self, message):
-        """function wich displays a choice menu to confirm, cancel or correct an entry
+        """function which displays a choice menu to confirm, cancel or correct an entry
         ex: name = John
         are you sure?
         - Confirm
@@ -86,9 +92,3 @@ class ValidationMenu(ChoiceMenu):
         else:
             choice = self.printing_menu_value(validation_choices)
         return choice
-
-
-
-
-
-
