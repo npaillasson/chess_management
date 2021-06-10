@@ -24,7 +24,7 @@ INT_CONTROL_EXPRESSION = re.compile(r"^[0-9]+$")
 str_controller = ["last_name", "first_name"]
 date_controller = ["date_of_birth"]
 int_controller = ["rank"]
-no_controller = ["gender"]
+no_controller = ["gender", "selected_player"]
 
 
 class Browse:
@@ -64,19 +64,21 @@ class Browse:
             self.player_creator_control()
         elif choice == 1:  # launch the tournaments creation menu
             pass
-    #A continuer!
+        elif choice == 2: #launch the menu for editing player's scores #A continuer!
+            self.score_edit_controller()
 
     def correction_menu_control(self, parent_menu):
         """function that allows to confirm, cancel or correct an entry"""
 
+
     # function that manage the players creation feature
     def player_creator_control(self):
-        """function which control the user input"""
+        """function which control the user input in the player creation menu"""
         player_information = {}
         last_name = self.set_menu("last_name")
-        player_information["last_name"] = last_name
+        player_information["last_name"] = last_name.upper()
         first_name = self.set_menu("first_name")
-        player_information["first_name"] = first_name
+        player_information["first_name"] = first_name.capitalize()
         date_of_birth = self.set_menu("date_of_birth")
         player_information["date_of_birth"] = date_of_birth
         gender = self.set_menu("gender")
@@ -91,6 +93,29 @@ class Browse:
         elif choice == 1:
             self.player_creator_control()
         else:
+            self.main_menu_control()
+
+    def score_edit_controller(self):
+        """method which control the user input in the menu for editing player's scores"""
+        displayed_list = []
+        for player in self.players_dao.players_list:
+            displayed_list.append(str(player))
+        displayed_list.append("quit")  # we add the quit choice
+        print(len(displayed_list))
+        print(displayed_list)
+        selected_player_index = self.choice_menu.printing_menu_index(displayed_list)
+        print(selected_player_index)
+
+        if selected_player_index == len(displayed_list) - 1:
+            self.main_menu_control()
+        else:
+            selected_player = self.players_dao.players_list[selected_player_index]
+            print(type(selected_player))
+            self.sign.printing_sign(selected_player)
+            new_rank = self.set_menu("rank")
+            print(self.players_dao.players_list[selected_player_index])
+            selected_player.rank = new_rank
+            self.players_dao.save_dao()
             self.main_menu_control()
 
     def data_controller(self, data_name):
@@ -134,13 +159,13 @@ class Browse:
 
         return None
 
-    def set_menu(self, data_name):
+    def set_menu(self, data_name, index=False):
         """Method which allows to set the menu and return the value"""
 
         if data_name in no_controller:
             value = self.validation_menu.printing_proposal_menu(VALIDATION_MENU_MESSAGE[data_name][0],
                                                                 VALIDATION_MENU_MESSAGE[data_name][1],
-                                                                index=False)
+                                                                index=index)
             return value
         else:
             value = self.data_controller(data_name)

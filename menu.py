@@ -4,8 +4,8 @@
 
 # MENUS CHOICES
 # list which contains the choices of the main menu
-MAIN_MENU_CHOICES = ["Créer un joueur", "Créer un tournoi", "Gérer un tournoi en cours",
-                     "Générer des rapports", "Règlages", "Quitter le logiciel"]
+MAIN_MENU_CHOICES = ["Créer un joueur", "Créer un tournoi", "Modifier le score d'un joueur",
+                     "Gérer un tournoi en cours", "Générer des rapports", "Règlages", "Quitter le logiciel"]
 
 # list which contains the choices of the "correction menu"
 CORRECTION_MENU_CHOICES = ["Valider !", "Corriger", "Annuler"]

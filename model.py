@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 # coding: utf-8
 
+from operator import attrgetter
 import tinydb
 from abc import ABC
 
@@ -43,6 +44,9 @@ class Player:
         else:
             return True
 
+    def __str__(self):
+        """Function that defines how a player is displayed"""
+        return "{} {} né(e) le {} : {} pts".format(self.last_name, self.first_name, self.date_of_birth, self.rank)
 
 class Match:
     """class which represent a match"""
@@ -104,12 +108,14 @@ class PlayersDataBase(DAO):
                                            serialized_player["date_of_birth"],
                                            serialized_player["gender"],
                                            serialized_player["rank"]))
+            new_players_list.sort(key=attrgetter("last_name", "first_name"))
         self.players_list = new_players_list
 
     def save_dao(self):
         """Function which save the data into the database"""
 
         serialized_players_list = []
+        self.players_list.sort(key=attrgetter("last_name", "first_name"))
         for player in self.players_list:
             serialized_player = {"last_name": player.last_name,
                                  "first_name": player.first_name,
@@ -123,7 +129,7 @@ class PlayersDataBase(DAO):
         self.players_table.insert_multiple(serialized_players_list)
 
     def players_exists(self, new_player):
-        """function that return True if the player 1 is already in the database"""
+        """function that return True if the new player is already in the database"""
 
         for player in self.players_list:
             if new_player == player:
