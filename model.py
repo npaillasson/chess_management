@@ -61,14 +61,15 @@ class Tournament:
 
     def __init__(self, name, place, date,
                  round_list, players_index_list, time_controller,
-                 number_of_turns=DEFAULT_NUMBER_OF_TURNS, actual_tour_number=0, state=TOURNAMENTS_STATES[0]):
+                 number_of_turns, actual_tour_number=0, state=TOURNAMENTS_STATES[0]):
         """Tournament constructor"""
 
         self.name = name
         self.place = place
-        self.date = date  # list of days
+        self.date = date
+        self.end_date = False
         self.number_of_turns = number_of_turns
-        self.round_list = round_list
+        self.round_list = []
         self.players_index_list = players_index_list
         self.time_controller = time_controller
         self.actual_tour_number = actual_tour_number
@@ -76,6 +77,9 @@ class Tournament:
 
     def swiss_system(self):
         """Function used to create all players pair for match"""
+
+    def __str__(self):
+        pass
 
 
 class DAO(ABC):
