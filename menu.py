@@ -33,6 +33,7 @@ PROPOSAL_MENU_MESSAGE = {"gender": ["Rensseigner le genre du joueur", ["Femme", 
 # SIGN MESSAGE
 welcome_message = "Bienvenue dans chess management !"
 player_already_exists = "Le joueur exist déjà !"
+not_enough_players = "Vous avez moins de 8 joueurs dans la base de données !"
 
 
 def players_formatting(player_information):

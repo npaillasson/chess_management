@@ -59,7 +59,7 @@ class Match:
 class Tournament:
     """class which represent a tournament"""
 
-    def __init__(self, name, place, date,
+    def __init__(self, name, place, date, end_date,
                  round_list, players_index_list, time_controller,
                  number_of_turns, actual_tour_number=0, state=TOURNAMENTS_STATES[0]):
         """Tournament constructor"""
@@ -67,7 +67,7 @@ class Tournament:
         self.name = name
         self.place = place
         self.date = date
-        self.end_date = False
+        self.end_date = end_date
         self.number_of_turns = number_of_turns
         self.round_list = []
         self.players_index_list = players_index_list
@@ -90,7 +90,7 @@ class DAO(ABC):
         self.dao = dao
 
 
-class PlayersDataBase(DAO):
+class PlayersDAO(DAO):
     """Class which represent the players database of the club"""
 
     def __init__(self):
@@ -141,7 +141,7 @@ class PlayersDataBase(DAO):
         return False
 
 
-class TournamentsDataBase(DAO):
+class TournamentsDAO(DAO):
     """Class which represent the tournaments database of the club"""
 
     def __init__(self):

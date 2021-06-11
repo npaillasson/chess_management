@@ -8,7 +8,7 @@ import re
 from view import ChoiceMenu, FieldMenu, Sign, ValidationMenu
 from menu import MAIN_MENU_CHOICES, FIELD_MESSAGE, CORRECTION_MENU_CHOICES,\
     PROPOSAL_MENU_MESSAGE, players_formatting
-from model import Player, PlayersDataBase, Tournament, TournamentsDataBase, Match, DAO_PATH, DEFAULT_NUMBER_OF_TURNS
+from model import Player, PlayersDAO, Tournament, TournamentsDAO, Match, DAO_PATH, DEFAULT_NUMBER_OF_TURNS
 import menu
 
 # regex that allows to check if the field contains only lettres or space or "-".
@@ -71,15 +71,14 @@ class Browse:
         """main menu controller function"""
         choice = self.choice_menu.printing_menu_index(self.main_menu_choice)
         if choice == 0:  # launch the players creation menu
-            self.player_creator_control()
+            return self.player_creator_control()
         elif choice == 1:  # launch the tournaments creation menu
-            self.tournament_creator_controller()
+            if len(self.players_dao.players_list) < 8:
+                self.sign.printing_sign(menu.not_enough_players)
+                return self.main_menu_control()
+            return self.tournament_creator_controller()
         elif choice == 2: #launch the menu for editing player's scores #A continuer!
-            self.score_edit_controller()
-
-    def correction_menu_control(self, parent_menu):
-        """method that allows to confirm, cancel or correct an entry"""
-
+            return self.score_edit_controller()
 
     # function that manage the players creation feature
     def player_creator_control(self):
@@ -101,8 +100,11 @@ class Browse:
         if choice == 0:
             print("OK!")
             self.add_player_in_dao(player_information)
+            return self.main_menu_control()
         elif choice == 1:
-            self.player_creator_control()
+            return self.player_creator_control()
+        else:
+            return self.main_menu_control()
 
     def tournament_creator_controller(self):
         """method which control the user input in the player creation menu"""
@@ -112,25 +114,20 @@ class Browse:
         tournament_place = self.set_menu("tournament_place")
         tournament_information["tournament_name"] = tournament_place
         tournament_date = self.set_menu("tournament_date", date_not_passed=False)
-        print(tournament_date)
         tournament_information["tournament_date"] = tournament_date
         other_date_request = self.set_menu("other_date_request", index=True)
-        print(other_date_request)
         if other_date_request == 0:
-            print(tournament_information["tournament_date"])
             end_date = self.set_menu("end_date", date_not_passed=False,
                                      greater_than=tournament_information["tournament_date"])
         else:
             end_date = tournament_date
         tournament_information["end_date"] = end_date
         number_of_turn = self.set_menu("number_of_turn", empty_field_permitted=True)
-        print(number_of_turn)
-        print(type(number_of_turn))
         if number_of_turn == "":
             tournament_information["number_of_turn"] = DEFAULT_NUMBER_OF_TURNS
         else:
             tournament_information["number_of_turn"] = number_of_turn
-        participating_players = "oK"
+        participating_players = self.add_players_in_tournament()
         tournament_information["participating_information"] = participating_players
         time_control = self.set_menu("time_control")
         tournament_information["time_control"] = time_control
@@ -139,15 +136,12 @@ class Browse:
 
     def score_edit_controller(self):
         """method which control the user input in the menu for editing player's scores"""
-        displayed_list = []
-        for player in self.players_dao.players_list:
-            displayed_list.append(str(player))
-        displayed_list.append("quit")  # we add the quit choice
+        displayed_list = self.display_player_list()
         selected_player_index = self.choice_menu.printing_menu_index(displayed_list)
 
         # if the user choose the quit option (which is the last one on the list
         if selected_player_index == len(displayed_list) - 1:
-            self.main_menu_control()
+            return self.main_menu_control()
         else:
             selected_player = self.players_dao.players_list[selected_player_index]
             self.sign.printing_sign(selected_player)
@@ -155,7 +149,31 @@ class Browse:
             selected_player.rank = new_rank
             # we save the new score in the dao
             self.players_dao.save_dao()
-            self.main_menu_control()
+            return self.main_menu_control()
+
+    def add_players_in_tournament(self):
+        """method which allows to add 8 players in a tournament"""
+
+        displayed_list = self.display_player_list()
+        players_list = []
+
+        while len(players_list) < 8:
+            selected_player_index = self.choice_menu.printing_menu_index(displayed_list)
+            if selected_player_index == len(displayed_list) - 1:
+                return self.main_menu_control()
+            else:
+                del displayed_list[selected_player_index]
+                selected_player = self.players_dao.players_list[selected_player_index]
+                players_list.append(selected_player)
+
+        return players_list
+
+    def display_player_list(self):
+        displayed_list = []
+        for player in self.players_dao.players_list:
+            displayed_list.append(str(player))
+        displayed_list.append("quit")  # we add the quit choice
+        return displayed_list
 
     def data_controller(self, data_name, empty_field_permitted=False):
         """Method which control user's inputs conformity"""
@@ -165,7 +183,7 @@ class Browse:
             print(data)
             print(type(data))
             if data == "quit":
-                self.main_menu_control()
+                return self.main_menu_control()
             elif data_name in str_controller:
                 if self.str_control_expression.match(data) is not None:
                     return data.strip()
@@ -222,16 +240,11 @@ class Browse:
             return value
         else:
             if empty_field_permitted:
-                print("ooooo")
                 value = self.data_controller(data_name, empty_field_permitted=True)
                 return value
             else:
                 value = self.data_controller(data_name)
                 return value
-#        if value:
-#            return value
-#        else:
-#            self.main_menu_control()
 
     def add_player_in_dao(self, player_information):
         """function which add a player into the database"""
@@ -249,7 +262,24 @@ class Browse:
             self.players_dao.players_list.append(new_player)
             self.players_dao.save_dao()
 
-        self.main_menu_control()
+        return self.main_menu_control()
+
+    def add_tournament_in_dao(self, tournament_information):
+        """function which add a player into the database"""
+
+        new_tournament = Tournament(tournament_information["tournament_name"],
+                                    tournament_information["tournament_place"],
+                                    tournament_information["tournament_date"],
+                                    tournament_information["end_date"],
+                                    tournament_information["number_of_turn"],
+                                    tournament_information["participating_players"],
+                                    tournament_information["time_control"],
+                                    tournament_information["tournament_comments"])
+
+        self.tournaments_dao.tournaments_list.append(new_tournament)
+        self.tournaments_dao_dao.save_dao()
+
+        return self.main_menu_control()
 
 
 def program_init():
@@ -265,13 +295,14 @@ def program_init():
             return True
 
 
+
 browser = Browse(main_menu_choice=MAIN_MENU_CHOICES,
                  correction_menu_choice=CORRECTION_MENU_CHOICES,
                  str_control_expression=STR_CONTROL_EXPRESSION,
                  str_int_control_expression=STR_INT_CONTROL_EXPRESSION,
                  date_control_expression=DATE_FORMAT,
                  int_control_expression=INT_CONTROL_EXPRESSION,
-                 players_dao=PlayersDataBase,
-                 tournaments_dao=TournamentsDataBase)
+                 players_dao=PlayersDAO,
+                 tournaments_dao=TournamentsDAO)
 
 browser.main_menu_control()
