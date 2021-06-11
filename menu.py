@@ -16,10 +16,10 @@ FIELD_MESSAGE = {"last_name": ["veuillez saisir le nom du joueur: ", "Nom invali
                  "first_name": ["veuillez saisir le prénom du joueur: ", "Prénom invalide !"],
                  "date_of_birth": ["veuillez saisir la date de naissance du joueur: ", "date invalide !"],
                  "rank": ["veuillez saisir le rang du joueur: ", "rang invalide !"],
-                 "number_of_turn": ["Reglez le nomnbre de tours (4 par défaut)", "Nombre de tous invalide !"],
-                 "tournament_name": ["Quel est le nom du tournoi ? "],
-                 "tournament_place": ["Ou se déroule le tournoi ? "],
-                 "commentaire": ["Voulez-vous faire un commentaire (facultatif)? "],
+                 "number_of_turn": ["Reglez le nomnbre de tours (4 par défaut) ", "Nombre de tous invalide !"],
+                 "tournament_name": ["Quel est le nom du tournoi ? ", "Nom invalide !"],
+                 "tournament_place": ["Ou se déroule le tournoi ? ", "lieu invalide ! "],
+                 "tournament_comments": ["Voulez-vous faire un commentaire (facultatif)? "],
                  "tournament_date": ["A quelle date le tournoi commence t'il ? ", "date invalide !"],
                  "end_date": ["A quelle date le tournoi fini t'il ? ", "date invalide !"]}
 

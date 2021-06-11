@@ -15,16 +15,23 @@ import menu
 STR_CONTROL_EXPRESSION = re.compile(r"^[A-Za-z- ]+$")
 
 # regex which allows to check if the field contains a date in right format
-DATE_CONTROL_EXPRESSION = re.compile(r"^[0-9]{2}/[0-9]{2}/[0-9]{4}$")
+DATE_FORMAT = "%d/%m/%Y"
 
 # regex that allows to check if a field is only composed by number
 INT_CONTROL_EXPRESSION = re.compile(r"^[0-9]+$")
 
+STR_INT_CONTROL_EXPRESSION = re.compile(r"^[A-Za-z0-9 ]+$")
+
 # list of adapted data_controllers
+# Field which have to contains only str, no int
 str_controller = ["last_name", "first_name"]
+# Field that can contain str and int, can not be empty.
 str_int_controller =["tournament_name", "tournament_place", "tournament_comments"]
+# Field which contains a date
 date_controller = ["date_of_birth", "tournament_date", "end_date"]
+# Field  which contains only int, no str
 int_controller = ["rank", "number_of_turn"]
+# Data already checked as proposal list
 no_controller = ["gender", "selected_player", "time_control", "participating_players", "other_date_request"]
 
 
@@ -34,6 +41,7 @@ class Browse:
     def __init__(self, main_menu_choice,
                  correction_menu_choice,
                  str_control_expression,
+                 str_int_control_expression,
                  date_control_expression,
                  int_control_expression,
                  players_dao,
@@ -45,6 +53,7 @@ class Browse:
 
         # regular expression
         self.str_control_expression = str_control_expression
+        self.str_int_control_expression = str_int_control_expression
         self.date_control_expression = date_control_expression
         self.int_control_expression = int_control_expression
 
@@ -75,6 +84,7 @@ class Browse:
     # function that manage the players creation feature
     def player_creator_control(self):
         """method which control the user input in the player creation menu"""
+
         player_information = {}
         last_name = self.set_menu("last_name")
         player_information["last_name"] = last_name.upper()
@@ -93,8 +103,6 @@ class Browse:
             self.add_player_in_dao(player_information)
         elif choice == 1:
             self.player_creator_control()
-        else:
-            self.main_menu_control()
 
     def tournament_creator_controller(self):
         """method which control the user input in the player creation menu"""
@@ -103,15 +111,21 @@ class Browse:
         tournament_information["tournament_name"] = tournament_name
         tournament_place = self.set_menu("tournament_place")
         tournament_information["tournament_name"] = tournament_place
-        tournament_date = self.set_menu("tournament_date")
+        tournament_date = self.set_menu("tournament_date", date_not_passed=False)
+        print(tournament_date)
         tournament_information["tournament_date"] = tournament_date
-        other_date_request = self.set_menu("other_date_request")
-        if other_date_request:
-            end_date = self.set_menu("end_date")
+        other_date_request = self.set_menu("other_date_request", index=True)
+        print(other_date_request)
+        if other_date_request == 0:
+            print(tournament_information["tournament_date"])
+            end_date = self.set_menu("end_date", date_not_passed=False,
+                                     greater_than=tournament_information["tournament_date"])
         else:
             end_date = tournament_date
         tournament_information["end_date"] = end_date
-        number_of_turn = self.set_menu("number_of_turn")
+        number_of_turn = self.set_menu("number_of_turn", empty_field_permitted=True)
+        print(number_of_turn)
+        print(type(number_of_turn))
         if number_of_turn == "":
             tournament_information["number_of_turn"] = DEFAULT_NUMBER_OF_TURNS
         else:
@@ -120,9 +134,8 @@ class Browse:
         tournament_information["participating_information"] = participating_players
         time_control = self.set_menu("time_control")
         tournament_information["time_control"] = time_control
-        tournament_comments = self.set_menu("tournament_comments")
+        tournament_comments = self.set_menu("tournament_comments", empty_field_permitted=True)
         tournament_information["tournament_comments"] = tournament_comments
-
 
     def score_edit_controller(self):
         """method which control the user input in the menu for editing player's scores"""
@@ -149,49 +162,54 @@ class Browse:
 
         while True:
             data = self.field_menu.printing_field(FIELD_MESSAGE[data_name][0])
+            print(data)
+            print(type(data))
             if data == "quit":
-                return None
+                self.main_menu_control()
             elif data_name in str_controller:
                 if self.str_control_expression.match(data) is not None:
                     return data.strip()
                 else:
                     self.sign.printing_sign(FIELD_MESSAGE[data_name][1])
             elif data_name in str_int_controller:
-                return data.strip()
-            elif data_name in date_controller:
-                if self.date_control(data) is not None:
+                if self.str_int_control_expression.match(data) is not None:
+                    return data.strip()
+                elif data == "" and empty_field_permitted:
                     return data
-                else:
-                    self.sign.printing_sign(FIELD_MESSAGE[data_name][1])
             elif data_name in int_controller:
                 if self.int_control_expression.match(data) is not None:
                     return data
-                if data == "" and empty_field_permitted == True:
-                    return data
+                elif not data and empty_field_permitted:
+                    return ""
                 else:
                     self.sign.printing_sign(FIELD_MESSAGE[data_name][1])
 
     # which checks if the date exists and if it has already been exceeded.
-    def date_control(self, data, not_passed=True):
+    def date_control(self, data_name, date_not_passed=True, greater_than=None):
         """Function that check the date conformity"""
 
-        if self.date_control_expression.match(data) is not None:
-            day = int(data[:2])
-            month = int(data[3:5])
-            year = int(data[6:])
+        while True:
+            data = self.field_menu.printing_field(FIELD_MESSAGE[data_name][0])
             try:
-                time_stamp = datetime(year, month, day).timestamp()
+                time_object = time.strptime(data, DATE_FORMAT)
             except ValueError:
-                return None
-            if not_passed:
-                if time_stamp <= time.time():
+                self.sign.printing_sign(FIELD_MESSAGE[data_name][1])
+                continue
+            if date_not_passed:
+                if time_object <= time.localtime():
                     return data
-            else:
+                else:
+                    self.sign.printing_sign(FIELD_MESSAGE[data_name][1])
+            if not date_not_passed and not greater_than:#faire un return pour date not passed == false!
                 return data
+            if not date_not_passed and greater_than:
+                compared_time_object = time.strptime(greater_than, DATE_FORMAT)
+                if time_object > compared_time_object:
+                    return data
+                else:
+                    self.sign.printing_sign(FIELD_MESSAGE[data_name][1])
 
-        return None
-
-    def set_menu(self, data_name, index=False, empty_field_permitted=False):
+    def set_menu(self, data_name, index=None, empty_field_permitted=False, date_not_passed=True, greater_than=None):
         """Method which allows to set the menu and return the value"""
 
         if data_name in no_controller:
@@ -199,15 +217,21 @@ class Browse:
                                                                 PROPOSAL_MENU_MESSAGE[data_name][1],
                                                                 index=index)
             return value
+        elif data_name in date_controller:
+            value = self.date_control(data_name, date_not_passed=date_not_passed, greater_than=greater_than)
+            return value
         else:
             if empty_field_permitted:
+                print("ooooo")
                 value = self.data_controller(data_name, empty_field_permitted=True)
+                return value
             else:
                 value = self.data_controller(data_name)
-        if value:
                 return value
-        else:
-            self.main_menu_control()
+#        if value:
+#            return value
+#        else:
+#            self.main_menu_control()
 
     def add_player_in_dao(self, player_information):
         """function which add a player into the database"""
@@ -244,7 +268,8 @@ def program_init():
 browser = Browse(main_menu_choice=MAIN_MENU_CHOICES,
                  correction_menu_choice=CORRECTION_MENU_CHOICES,
                  str_control_expression=STR_CONTROL_EXPRESSION,
-                 date_control_expression=DATE_CONTROL_EXPRESSION,
+                 str_int_control_expression=STR_INT_CONTROL_EXPRESSION,
+                 date_control_expression=DATE_FORMAT,
                  int_control_expression=INT_CONTROL_EXPRESSION,
                  players_dao=PlayersDataBase,
                  tournaments_dao=TournamentsDataBase)
