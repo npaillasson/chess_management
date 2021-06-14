@@ -22,6 +22,8 @@ INT_CONTROL_EXPRESSION = re.compile(r"^[0-9]+$")
 
 STR_INT_CONTROL_EXPRESSION = re.compile(r"^[A-Za-z0-9 'éèàêöç!.;:,/]+$")
 
+stop_function = "quit"
+
 # list of adapted data_controllers
 # Field which have to contains only str, no int
 str_controller = ["last_name", "first_name"]
@@ -84,65 +86,78 @@ class Browse:
     def player_creator_control(self):
         """method which control the user input in the player creation menu"""
 
-        player_information = {}
-        last_name = self.set_menu("last_name")
-        player_information["last_name"] = last_name.upper()
-        first_name = self.set_menu("first_name")
-        player_information["first_name"] = first_name.capitalize()
-        date_of_birth = self.set_menu("date_of_birth")
-        player_information["date_of_birth"] = date_of_birth
-        gender = self.set_menu("gender")
-        player_information["gender"] = gender
-        rank = self.set_menu("rank")
-        player_information["rank"] = rank
-        choice = self.validation_menu.\
-            printing_correction_menu(players_formatting(player_information))
-        if choice == 0:
-            print("OK!")
-            self.add_player_in_dao(player_information)
-            return self.main_menu_control()
-        elif choice == 1:
-            return self.player_creator_control()
-        else:
-            return self.main_menu_control()
+        while True:
+            player_information = {}
+            last_name = self.set_menu("last_name")
+            if last_name == stop_function:
+                break
+            player_information["last_name"] = last_name.upper()
+            first_name = self.set_menu("first_name")
+            if last_name == stop_function:
+                break
+            player_information["first_name"] = first_name.capitalize()
+            date_of_birth = self.set_menu("date_of_birth")
+            player_information["date_of_birth"] = date_of_birth
+            gender = self.set_menu("gender")
+            player_information["gender"] = gender
+            rank = self.set_menu("rank")
+            player_information["rank"] = rank
+            choice = self.validation_menu.\
+                printing_correction_menu(players_formatting(player_information))
+            if choice == 0:
+                print("OK!")
+                self.add_player_in_dao(player_information)
+                break
+            elif choice == 1:
+                continue
+            else:
+                break
+        return self.main_menu_control()
 
     def tournament_creator_control(self):
         """method which control the user input in the player creation menu"""
-        tournament_information = {}
-        tournament_name = self.set_menu("tournament_name")
-        tournament_information["tournament_name"] = tournament_name
-        tournament_place = self.set_menu("tournament_place")
-        tournament_information["tournament_place"] = tournament_place
-        tournament_date = self.set_menu("tournament_date", date_not_passed=False)
-        tournament_information["tournament_date"] = tournament_date
-        other_date_request = self.set_menu("other_date_request", index=True)
-        if other_date_request == 0:
-            end_date = self.set_menu("end_date", date_not_passed=False,
-                                     greater_than=tournament_information["tournament_date"])
-        else:
-            end_date = tournament_date
-        tournament_information["end_date"] = end_date
-        number_of_turn = self.set_menu("number_of_turn", empty_field_permitted=True)
-        if number_of_turn == "":
-            tournament_information["number_of_turn"] = DEFAULT_NUMBER_OF_TURNS
-        else:
-            tournament_information["number_of_turn"] = number_of_turn
-        players_index_list, players_object_list = self.add_players_in_tournament()
-        tournament_information["players_index_list"] = players_index_list
-        tournament_information["players_object_list"] = players_object_list
-        time_control = self.set_menu("time_control")
-        tournament_information["time_control"] = time_control
-        tournament_comments = self.set_menu("tournament_comments", empty_field_permitted=True)
-        tournament_information["tournament_comments"] = tournament_comments
-        choice = self.validation_menu.printing_correction_menu(tournament_formatting(tournament_information))
-        if choice == 0:
-            print("OK")
-            self.add_tournament_in_dao(tournament_information)
-            return self.main_menu_control()
-        elif choice == 1:
-            return self.tournament_creator_control()
-        else:
-            return self.main_menu_control()
+        while True:
+            tournament_information = {}
+            tournament_name = self.set_menu("tournament_name")
+            if tournament_name == stop_function:
+                break
+            tournament_information["tournament_name"] = tournament_name
+            tournament_place = self.set_menu("tournament_place")
+            if tournament_place == stop_function:
+                break
+            tournament_information["tournament_place"] = tournament_place
+            tournament_date = self.set_menu("tournament_date", date_not_passed=False)
+            tournament_information["tournament_date"] = tournament_date
+            other_date_request = self.set_menu("other_date_request", index=True)
+            if other_date_request == 0:
+                end_date = self.set_menu("end_date", date_not_passed=False,
+                                         greater_than=tournament_information["tournament_date"])
+            else:
+                end_date = tournament_date
+            tournament_information["end_date"] = end_date
+            number_of_turn = self.set_menu("number_of_turn", empty_field_permitted=True)
+            if number_of_turn == "":
+                tournament_information["number_of_turn"] = DEFAULT_NUMBER_OF_TURNS
+            else:
+                tournament_information["number_of_turn"] = number_of_turn
+            players_index_list, players_object_list = self.add_players_in_tournament()
+            tournament_information["players_index_list"] = players_index_list
+            tournament_information["players_object_list"] = players_object_list
+            time_control = self.set_menu("time_control")
+            tournament_information["time_control"] = time_control
+            tournament_comments = self.set_menu("tournament_comments", empty_field_permitted=True)
+            tournament_information["tournament_comments"] = tournament_comments
+
+            choice = self.validation_menu.printing_correction_menu(tournament_formatting(tournament_information))
+            if choice == 0:
+                print("OK")
+                self.add_tournament_in_dao(tournament_information)
+                break
+            elif choice == 1:
+                continue
+            else:
+                break
+        return self.main_menu_control()
 
     def score_edit_controller(self):
         """method which control the user input in the menu for editing player's scores"""
@@ -202,7 +217,7 @@ class Browse:
         while True:
             data = self.field_menu.printing_field(FIELD_MESSAGE[data_name][0])
             if data == "quit":
-                return self.main_menu_control()
+                return data
             elif data_name in str_controller:
                 if self.str_control_expression.match(data) is not None:
                     return data.strip()
