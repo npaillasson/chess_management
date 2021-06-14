@@ -7,8 +7,6 @@ from abc import ABC
 
 DEFAULT_NUMBER_OF_TURNS = 4
 
-TYPE_OF_TIME_CONTROLLER = {"bullet": range(1, 3), "blitz": range(3, 6), "fast_chess": range(10, 61)}
-
 TOURNAMENTS_STATES = ["In progress", "Completed", "aborted"]
 
 DAO_PATH = "data/chess_database.json"
@@ -48,6 +46,9 @@ class Player:
         """Function that defines how a player is displayed"""
         return "{} {} né(e) le {} : {} pts".format(self.last_name, self.first_name, self.date_of_birth, self.rank)
 
+    def __repr__(self):
+        return self.__str__()
+
 class Match:
     """class which represent a match"""
     def __init__(self, player_1, player_2):
@@ -59,8 +60,7 @@ class Match:
 class Tournament:
     """class which represent a tournament"""
 
-    def __init__(self, name, place, date, end_date,
-                 round_list, players_index_list, time_controller,
+    def __init__(self, name, place, date, end_date, time_controller,
                  number_of_turns, actual_tour_number=0, state=TOURNAMENTS_STATES[0]):
         """Tournament constructor"""
 
@@ -70,7 +70,8 @@ class Tournament:
         self.end_date = end_date
         self.number_of_turns = number_of_turns
         self.round_list = []
-        self.players_index_list = players_index_list
+        self.players_index_list = []
+        self.players_list = []
         self.time_controller = time_controller
         self.actual_tour_number = actual_tour_number
         self.state = state
@@ -112,14 +113,14 @@ class PlayersDAO(DAO):
                                            serialized_player["date_of_birth"],
                                            serialized_player["gender"],
                                            serialized_player["rank"]))
-            new_players_list.sort(key=attrgetter("last_name", "first_name"))
+#            new_players_list.sort(key=attrgetter("last_name", "first_name"))
         self.players_list = new_players_list
 
     def save_dao(self):
         """Function which save the data into the database"""
 
         serialized_players_list = []
-        self.players_list.sort(key=attrgetter("last_name", "first_name"))
+#        self.players_list.sort(key=attrgetter("last_name", "first_name"))
         for player in self.players_list:
             serialized_player = {"last_name": player.last_name,
                                  "first_name": player.first_name,

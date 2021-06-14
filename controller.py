@@ -7,12 +7,12 @@ from datetime import datetime
 import re
 from view import ChoiceMenu, FieldMenu, Sign, ValidationMenu
 from menu import MAIN_MENU_CHOICES, FIELD_MESSAGE, CORRECTION_MENU_CHOICES,\
-    PROPOSAL_MENU_MESSAGE, players_formatting
+    PROPOSAL_MENU_MESSAGE, players_formatting, tournament_formatting
 from model import Player, PlayersDAO, Tournament, TournamentsDAO, Match, DAO_PATH, DEFAULT_NUMBER_OF_TURNS
 import menu
 
 # regex that allows to check if the field contains only lettres or space or "-".
-STR_CONTROL_EXPRESSION = re.compile(r"^[A-Za-z- ]+$")
+STR_CONTROL_EXPRESSION = re.compile(r"^[A-Za-z- 'éèàêöç]+$")
 
 # regex which allows to check if the field contains a date in right format
 DATE_FORMAT = "%d/%m/%Y"
@@ -20,7 +20,7 @@ DATE_FORMAT = "%d/%m/%Y"
 # regex that allows to check if a field is only composed by number
 INT_CONTROL_EXPRESSION = re.compile(r"^[0-9]+$")
 
-STR_INT_CONTROL_EXPRESSION = re.compile(r"^[A-Za-z0-9 ]+$")
+STR_INT_CONTROL_EXPRESSION = re.compile(r"^[A-Za-z0-9 'éèàêöç!.;:,/]+$")
 
 # list of adapted data_controllers
 # Field which have to contains only str, no int
@@ -76,8 +76,8 @@ class Browse:
             if len(self.players_dao.players_list) < 8:
                 self.sign.printing_sign(menu.not_enough_players)
                 return self.main_menu_control()
-            return self.tournament_creator_controller()
-        elif choice == 2: #launch the menu for editing player's scores #A continuer!
+            return self.tournament_creator_control()
+        elif choice == 2:  # launch the menu for editing player's scores #A continuer!
             return self.score_edit_controller()
 
     # function that manage the players creation feature
@@ -106,13 +106,13 @@ class Browse:
         else:
             return self.main_menu_control()
 
-    def tournament_creator_controller(self):
+    def tournament_creator_control(self):
         """method which control the user input in the player creation menu"""
         tournament_information = {}
         tournament_name = self.set_menu("tournament_name")
         tournament_information["tournament_name"] = tournament_name
         tournament_place = self.set_menu("tournament_place")
-        tournament_information["tournament_name"] = tournament_place
+        tournament_information["tournament_place"] = tournament_place
         tournament_date = self.set_menu("tournament_date", date_not_passed=False)
         tournament_information["tournament_date"] = tournament_date
         other_date_request = self.set_menu("other_date_request", index=True)
@@ -128,11 +128,20 @@ class Browse:
         else:
             tournament_information["number_of_turn"] = number_of_turn
         participating_players = self.add_players_in_tournament()
-        tournament_information["participating_information"] = participating_players
+        tournament_information["participating_players"] = participating_players
         time_control = self.set_menu("time_control")
         tournament_information["time_control"] = time_control
         tournament_comments = self.set_menu("tournament_comments", empty_field_permitted=True)
         tournament_information["tournament_comments"] = tournament_comments
+        choice = self.validation_menu.printing_correction_menu(tournament_formatting(tournament_information))
+        if choice == 0:
+            print("OK")
+            self.add_tournament_in_dao(tournament_information)
+            return self.main_menu_control()
+        elif choice == 1:
+            return self.tournament_creator_control()
+        else:
+            return self.main_menu_control()
 
     def score_edit_controller(self):
         """method which control the user input in the menu for editing player's scores"""
@@ -155,18 +164,19 @@ class Browse:
         """method which allows to add 8 players in a tournament"""
 
         displayed_list = self.display_player_list()
-        players_list = []
+        participating_players_index_list = []
+        participating_players_object_list = []
 
-        while len(players_list) < 8:
+        while len(participating_players_index_list) < 8:
             selected_player_index = self.choice_menu.printing_menu_index(displayed_list)
             if selected_player_index == len(displayed_list) - 1:
                 return self.main_menu_control()
             else:
                 del displayed_list[selected_player_index]
-                selected_player = self.players_dao.players_list[selected_player_index]
-                players_list.append(selected_player)
+                participating_players_index_list =
+                participating_players_object_list.append(self.players_dao.players_list[selected_player_index])
 
-        return players_list
+            return participating_players_index_list
 
     def display_player_list(self):
         displayed_list = []
@@ -277,7 +287,7 @@ class Browse:
                                     tournament_information["tournament_comments"])
 
         self.tournaments_dao.tournaments_list.append(new_tournament)
-        self.tournaments_dao_dao.save_dao()
+        self.tournaments_dao.save_dao()
 
         return self.main_menu_control()
 
@@ -295,7 +305,6 @@ def program_init():
             return True
 
 
-
 browser = Browse(main_menu_choice=MAIN_MENU_CHOICES,
                  correction_menu_choice=CORRECTION_MENU_CHOICES,
                  str_control_expression=STR_CONTROL_EXPRESSION,
@@ -305,4 +314,5 @@ browser = Browse(main_menu_choice=MAIN_MENU_CHOICES,
                  players_dao=PlayersDAO,
                  tournaments_dao=TournamentsDAO)
 
+browser.players_dao.load_dao()
 browser.main_menu_control()
