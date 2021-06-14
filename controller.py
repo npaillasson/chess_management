@@ -81,6 +81,8 @@ class Browse:
             return self.tournament_creator_control()
         elif choice == 2:  # launch the menu for editing player's scores #A continuer!
             return self.score_edit_controller()
+        elif choice ==3:
+            return self.select_tournaments()
 
     # function that manage the players creation feature
     def player_creator_control(self):
@@ -176,6 +178,23 @@ class Browse:
             self.players_dao.save_dao()
             return self.main_menu_control()
 
+    def select_tournaments(self):
+
+        displayed_list, object_list = self.display_tournament_list(object_list=True, active_only=True)
+        selected_tournament_index = self.choice_menu.printing_menu_index(displayed_list)
+
+        # if the user choose the quit option (which is the last one on the list
+        if selected_tournament_index == len(displayed_list) - 1:
+            return self.main_menu_control()
+
+        else:
+            return self.tournaments_management(object_list[selected_tournament_index])
+
+
+    def tournaments_management(self, tournament):
+
+
+
     def add_players_in_tournament(self):
         """method which allows to add 8 players in a tournament"""
 
@@ -208,6 +227,28 @@ class Browse:
         displayed_list.append("quit")  # we add the quit choice
         if object_list:
             return displayed_list, players_list_object
+        else:
+            return displayed_list
+
+    def display_tournament_list(self, object_list=False, all_tournaments=True, active_only=False):
+
+        if active_only:
+            all_tournaments = False
+
+        displayed_list = []
+        tournament_list_object = []
+
+        if all_tournaments:
+            tournament_list = self.tournaments_dao.tournaments_list + self.tournaments_dao.active_tournaments_list
+        else:
+            tournament_list = self.tournaments_dao.active_tournaments_list
+
+        for tournament in tournament_list:
+            displayed_list.append(str(tournament))
+            tournament_list_object.append(tournament)
+        displayed_list.append("quit")  # we add the quit choice
+        if object_list:
+            return displayed_list, tournament_list_object
         else:
             return displayed_list
 
