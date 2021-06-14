@@ -7,7 +7,7 @@ from abc import ABC
 
 DEFAULT_NUMBER_OF_TURNS = 4
 
-TOURNAMENTS_STATES = ["In progress", "Completed", "aborted"]
+TOURNAMENTS_STATES = ["In progress", "aborted", "Completed"]
 
 DAO_PATH = "data/chess_database.json"
 
@@ -85,9 +85,11 @@ class Tournament:
     def swiss_system(self):
         """Function used to create all players pair for match"""
 
-    def __str__(self):
-        pass
-
+    def __repr__(self):
+        return "Tournoi: {}, lieu: {}, date de debut: {}, date de fin: {}".format(self.tournament_name,
+                                                                                  self.tournament_place,
+                                                                                  self.tournament_date,
+                                                                                  self.end_date)
 
 class DAO(ABC):
     """Abstract DAO Class"""
@@ -119,14 +121,12 @@ class PlayersDAO(DAO):
                                            serialized_player["date_of_birth"],
                                            serialized_player["gender"],
                                            serialized_player["rank"]))
-#            new_players_list.sort(key=attrgetter("last_name", "first_name"))
         self.players_list = new_players_list
 
     def save_dao(self):
         """Function which save the data into the database"""
 
         serialized_players_list = []
-#        self.players_list.sort(key=attrgetter("last_name", "first_name"))
         for player in self.players_list:
             serialized_player = {"last_name": player.last_name,
                                  "first_name": player.first_name,
@@ -156,6 +156,7 @@ class TournamentsDAO(DAO):
 
         DAO.__init__(self)
         self.tournaments_list = []
+        self.active_tournaments_list = []
         self.tournaments_table = self.dao.table("tournaments")
 
     def load_dao(self, playerdao):
@@ -178,14 +179,16 @@ class TournamentsDAO(DAO):
                                                    tournament_comments=serialized_tournament["tournament_comments"],
                                                    actual_tour_number=serialized_tournament["actual_tour_number"],
                                                    state=serialized_tournament["state"]))
+        print(new_tournaments_list)
 
-        return new_tournaments_list
+        self.tournaments_distribution(new_tournaments_list)
 
     def save_dao(self):
         """Function which save the data into the database"""
 
         serialized_tournaments_list = []
-        for tournament in self.tournaments_list:
+        merge_tournament_list = self.tournaments_list + self.active_tournaments_list
+        for tournament in merge_tournament_list:
             serialized_tournament = {"tournament_name": tournament.tournament_name,
                                      "tournament_place": tournament.tournament_place,
                                      "tournament_date": tournament.tournament_date,
@@ -213,3 +216,18 @@ class TournamentsDAO(DAO):
             player_object_list.append(player_object)
 
         return player_object_list
+
+    def tournaments_distribution(self, tournaments_list):
+        """Method that divides the tournaments into two lists depending on whether the
+        tournament is in progress or not."""
+
+        tournaments_list = tournaments_list
+
+        active_tournaments_list = [tournament for tournament in tournaments_list
+                                   if tournament.state in TOURNAMENTS_STATES[0]]
+
+        tournaments_list = [tournament for tournament in tournaments_list
+                            if tournament not in active_tournaments_list]
+
+        self.tournaments_list = tournaments_list
+        self.active_tournaments_list = active_tournaments_list

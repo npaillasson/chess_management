@@ -237,7 +237,7 @@ class Browse:
                     return data
                 else:
                     self.sign.printing_sign(FIELD_MESSAGE[data_name][1])
-            if not date_not_passed and not greater_than:#faire un return pour date not passed == false!
+            if not date_not_passed and not greater_than:
                 return data
             if not date_not_passed and greater_than:
                 compared_time_object = time.strptime(greater_than, DATE_FORMAT)
@@ -284,19 +284,24 @@ class Browse:
         return self.main_menu_control()
 
     def add_tournament_in_dao(self, tournament_information):
-        """function which add a player into the database"""
+        """function which add a tournament into the database"""
 
-        new_tournament = Tournament(tournament_information["tournament_name"],
-                                    tournament_information["tournament_place"],
-                                    tournament_information["tournament_date"],
-                                    tournament_information["end_date"],
-                                    tournament_information["players_index_list"],
-                                    tournament_information["number_of_turn"],
-                                    tournament_information["time_control"],
-                                    tournament_information["tournament_comments"])
+        new_tournament = Tournament(tournament_name=tournament_information["tournament_name"],
+                                    tournament_place=tournament_information["tournament_place"],
+                                    tournament_date=tournament_information["tournament_date"],
+                                    end_date=tournament_information["end_date"],
+                                    players_index_list=tournament_information["players_index_list"],
+                                    players_object_list=tournament_information["players_object_list"],
+                                    number_of_turns=tournament_information["number_of_turn"],
+                                    time_controller=tournament_information["time_control"],
+                                    tournament_comments=tournament_information["tournament_comments"],
+                                    round_list=None,)
 
         self.tournaments_dao.tournaments_list.append(new_tournament)
         self.tournaments_dao.save_dao()
+
+        print("actif", browser.tournaments_dao.tournaments_list)
+        print(browser.tournaments_dao.active_tournaments_list)
 
         return self.main_menu_control()
 
@@ -325,4 +330,6 @@ browser = Browse(main_menu_choice=MAIN_MENU_CHOICES,
 
 browser.players_dao.load_dao()
 browser.tournaments_dao.load_dao(browser.players_dao.players_list)
+print("inactif", browser.tournaments_dao.tournaments_list)
+print("actif", browser.tournaments_dao.active_tournaments_list)
 browser.main_menu_control()

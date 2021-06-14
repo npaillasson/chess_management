@@ -55,6 +55,6 @@ def tournament_formatting(tournament_information):
                tournament_information["tournament_date"],
                tournament_information["end_date"],
                tournament_information["number_of_turn"],
-               tournament_information["participating_players_object"],
+               tournament_information["players_object_list"],
                tournament_information["time_control"],
                tournament_information["tournament_comments"])
