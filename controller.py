@@ -127,8 +127,9 @@ class Browse:
             tournament_information["number_of_turn"] = DEFAULT_NUMBER_OF_TURNS
         else:
             tournament_information["number_of_turn"] = number_of_turn
-        participating_players = self.add_players_in_tournament()
-        tournament_information["participating_players"] = participating_players
+        players_index_list, players_object_list = self.add_players_in_tournament()
+        tournament_information["players_index_list"] = players_index_list
+        tournament_information["players_object_list"] = players_object_list
         time_control = self.set_menu("time_control")
         tournament_information["time_control"] = time_control
         tournament_comments = self.set_menu("tournament_comments", empty_field_permitted=True)
@@ -163,7 +164,10 @@ class Browse:
     def add_players_in_tournament(self):
         """method which allows to add 8 players in a tournament"""
 
-        displayed_list = self.display_player_list()
+        # On a deux liste, une avec la représentation des joueurs en str
+        # pour le menu et l'autre contenant les objets joueurs pour récuperer
+        # l'index reel dans la liste des joueur de la base de données
+        displayed_list, players_list_object = self.display_player_list(object_list=True)
         participating_players_index_list = []
         participating_players_object_list = []
 
@@ -172,26 +176,31 @@ class Browse:
             if selected_player_index == len(displayed_list) - 1:
                 return self.main_menu_control()
             else:
+                player_object = players_list_object[selected_player_index]
                 del displayed_list[selected_player_index]
-                participating_players_index_list =
-                participating_players_object_list.append(self.players_dao.players_list[selected_player_index])
+                del players_list_object[selected_player_index]
+                participating_players_index_list.append(self.players_dao.players_list.index(player_object))
+                participating_players_object_list.append(player_object)
 
-            return participating_players_index_list
+        return participating_players_index_list, participating_players_object_list
 
-    def display_player_list(self):
+    def display_player_list(self, object_list=False):
         displayed_list = []
+        players_list_object = []
         for player in self.players_dao.players_list:
             displayed_list.append(str(player))
+            players_list_object.append(player)
         displayed_list.append("quit")  # we add the quit choice
-        return displayed_list
+        if object_list:
+            return displayed_list, players_list_object
+        else:
+            return displayed_list
 
     def data_controller(self, data_name, empty_field_permitted=False):
         """Method which control user's inputs conformity"""
 
         while True:
             data = self.field_menu.printing_field(FIELD_MESSAGE[data_name][0])
-            print(data)
-            print(type(data))
             if data == "quit":
                 return self.main_menu_control()
             elif data_name in str_controller:
@@ -281,8 +290,8 @@ class Browse:
                                     tournament_information["tournament_place"],
                                     tournament_information["tournament_date"],
                                     tournament_information["end_date"],
+                                    tournament_information["players_index_list"],
                                     tournament_information["number_of_turn"],
-                                    tournament_information["participating_players"],
                                     tournament_information["time_control"],
                                     tournament_information["tournament_comments"])
 
@@ -315,4 +324,5 @@ browser = Browse(main_menu_choice=MAIN_MENU_CHOICES,
                  tournaments_dao=TournamentsDAO)
 
 browser.players_dao.load_dao()
+browser.tournaments_dao.load_dao(browser.players_dao.players_list)
 browser.main_menu_control()

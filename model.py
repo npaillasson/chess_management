@@ -60,19 +60,25 @@ class Match:
 class Tournament:
     """class which represent a tournament"""
 
-    def __init__(self, name, place, date, end_date, time_controller,
-                 number_of_turns, actual_tour_number=0, state=TOURNAMENTS_STATES[0]):
+    def __init__(self, tournament_name, tournament_place, tournament_date, end_date, time_controller,
+                 number_of_turns, players_index_list, players_object_list,
+                 actual_tour_number=0, state=TOURNAMENTS_STATES[0], round_list=None, tournament_comments=None):
         """Tournament constructor"""
 
-        self.name = name
-        self.place = place
-        self.date = date
+        if round_list is None:
+            round_list = []
+        if tournament_comments is None:
+            tournament_comments = ""
+        self.tournament_name = tournament_name
+        self.tournament_place = tournament_place
+        self.tournament_date = tournament_date
         self.end_date = end_date
         self.number_of_turns = number_of_turns
-        self.round_list = []
-        self.players_index_list = []
-        self.players_list = []
+        self.round_list = round_list
+        self.players_index_list = players_index_list
+        self.players_list = players_object_list
         self.time_controller = time_controller
+        self.tournament_comments = tournament_comments
         self.actual_tour_number = actual_tour_number
         self.state = state
 
@@ -152,22 +158,26 @@ class TournamentsDAO(DAO):
         self.tournaments_list = []
         self.tournaments_table = self.dao.table("tournaments")
 
-    def load_dao(self):
+    def load_dao(self, playerdao):
         """Function which load tournaments data from the database"""
 
         new_tournaments_list = []
         serialized_tournaments_list = self.tournaments_table.all()
 
         for serialized_tournament in serialized_tournaments_list:
-            new_tournaments_list.append(Tournament(serialized_tournament["name"],
-                                                   serialized_tournament["place"],
-                                                   serialized_tournament["date"],
-                                                   serialized_tournament["round_list"],
-                                                   serialized_tournament["players_index_list"],
-                                                   serialized_tournament["time_controller"],
-                                                   serialized_tournament["number_of_turns"],
-                                                   serialized_tournament["actual_tour_number"],
-                                                   serialized_tournament["state"]))
+            players_object_list = self.find_player_object(serialized_tournament, playerdao)
+            new_tournaments_list.append(Tournament(tournament_name=serialized_tournament["tournament_name"],
+                                                   tournament_place=serialized_tournament["tournament_place"],
+                                                   tournament_date=serialized_tournament["tournament_date"],
+                                                   end_date=serialized_tournament["end_date"],
+                                                   number_of_turns=serialized_tournament["number_of_turns"],
+                                                   round_list=serialized_tournament["round_list"],
+                                                   players_index_list=serialized_tournament["players_index_list"],
+                                                   players_object_list=players_object_list,
+                                                   time_controller=serialized_tournament["time_controller"],
+                                                   tournament_comments=serialized_tournament["tournament_comments"],
+                                                   actual_tour_number=serialized_tournament["actual_tour_number"],
+                                                   state=serialized_tournament["state"]))
 
         return new_tournaments_list
 
@@ -176,17 +186,30 @@ class TournamentsDAO(DAO):
 
         serialized_tournaments_list = []
         for tournament in self.tournaments_list:
-            serialized_tournament = {"name": tournament.name,
-                                     "place": tournament.place,
-                                     "date": tournament.date,
+            serialized_tournament = {"tournament_name": tournament.tournament_name,
+                                     "tournament_place": tournament.tournament_place,
+                                     "tournament_date": tournament.tournament_date,
+                                     "end_date": tournament.end_date,
+                                     "number_of_turns": tournament.number_of_turns,
                                      "round_list": tournament.round_list,
                                      "players_index_list": tournament.players_index_list,
                                      "time_controller": tournament.time_controller,
-                                     "number_of_turns": tournament.number_of_turns,
+                                     "tournament_comments": tournament.tournament_comments,
                                      "actual_tour_number": tournament.actual_tour_number,
                                      "state": tournament.state}
 
             serialized_tournaments_list.append(serialized_tournament)
+            self.tournaments_table.truncate()
+            self.tournaments_table.insert_multiple(serialized_tournaments_list)
 
-        self.tournaments_table.truncate()
-        self.tournaments_table.insert_multiple(serialized_tournaments_list)
+    @staticmethod
+    def find_player_object(serialized_tournament, players_list):
+
+        player_object_list = []
+        index_list = serialized_tournament["players_index_list"]
+
+        for index in index_list:
+            player_object = players_list[index]
+            player_object_list.append(player_object)
+
+        return player_object_list
