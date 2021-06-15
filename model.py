@@ -54,7 +54,27 @@ class Match:
     def __init__(self, player_1, player_2):
         """Match constructor"""
         self.players = [player_1, player_2]
-        self.results = "Not set"
+        self.results_player_1 = "Not set"
+        self.results_player_2 = "Not set"
+        self.winner = "Not set"
+
+    def __repr__(self):
+        if self.winner == "Not set":
+            return "{} contre {}".format(self.players[0], self.players[1])
+        else:
+            return "{} contre {} gagant : {}".format(self.players[0], self.players[1], self.winner)
+
+class Round:
+    """class which represent a round (list of 4 matches)"""
+
+    def __init__(self, first_match, second_match, third_match, fourth_match):
+        self.first_match = first_match
+        self.second_match = second_match
+        self.third_match = third_match
+        self.fourth_match = fourth_match
+
+    def __repr__(self):
+        return "[{}, {}, {}, {}]".format(self.first_match, self.second_match, self.fourth_match, self.fourth_match)
 
 
 class Tournament:
@@ -76,6 +96,7 @@ class Tournament:
         self.number_of_turns = number_of_turns
         self.round_list = round_list
         self.players_index_list = players_index_list
+        self.players_points = [0, 0, 0, 0, 0, 0, 0, 0]
         self.players_list = players_object_list
         self.time_controller = time_controller
         self.tournament_comments = tournament_comments
@@ -84,6 +105,17 @@ class Tournament:
 
     def swiss_system(self):
         """Function used to create all players pair for match"""
+        if self.actual_tour_number == 0:
+            sorted_players_list = self.players_list
+            sorted(sorted_players_list, key=attrgetter("rank"))
+            list_match = []
+            index = 0
+            while index != 4:
+                list_match.append(Match(sorted_players_list[index], sorted_players_list[index+4]))
+                index += 1
+            self.round_list.append(list_match)
+        else:
+            pass
 
     def __repr__(self):
         return "Tournoi: {}, lieu: {}, date de debut: {}, date de fin: {}".format(self.tournament_name,

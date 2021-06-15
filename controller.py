@@ -163,7 +163,7 @@ class Browse:
 
     def score_edit_controller(self):
         """method which control the user input in the menu for editing player's scores"""
-        displayed_list = self.display_player_list()
+        displayed_list = self.display_player_list(self.players_dao.players_list)
         selected_player_index = self.choice_menu.printing_menu_index(displayed_list)
 
         # if the user choose the quit option (which is the last one on the list
@@ -178,12 +178,13 @@ class Browse:
             self.players_dao.save_dao()
             return self.main_menu_control()
 
+
     def select_tournaments(self):
 
         displayed_list, object_list = self.display_tournament_list(object_list=True, active_only=True)
         selected_tournament_index = self.choice_menu.printing_menu_index(displayed_list)
 
-        # if the user choose the quit option (which is the last one on the list
+        # if the user choose the quit option (which is the last one on the list)
         if selected_tournament_index == len(displayed_list) - 1:
             return self.main_menu_control()
 
@@ -193,7 +194,20 @@ class Browse:
 
     def tournaments_management(self, tournament):
 
+        tournament.swiss_system() #ici on affiche les joueurs
+        while tournament.actual_tour_number < tournament.number_of_turns + 1:
+            displayed_list, object_list = self.display_match_list(tournament.round_list[tournament.actual_tour_number])
+            selected_match_index = self.validation_menu.printing_proposal_menu(PROPOSAL_MENU_MESSAGE["set_match"],
+                                                                               validation_choices=displayed_list)
 
+            if selected_match_index == len(displayed_list) - 1:
+                return self.main_menu_control()
+
+            else: # ici on affiche une premiere page d'entrée pour le joueur 1 puis une seconde pour le joueur 2
+                while True:
+                    self.sign.printing_sign(object_list[selected_match_index].players[0])
+                    self.field_menu.printing_field("score_request")
+                    #A FINIR, CONTROLLER ET AJOUTER LE SCORE POUR LA SUITE DE LA RONDE SUISSE
 
     def add_players_in_tournament(self):
         """method which allows to add 8 players in a tournament"""
@@ -201,7 +215,7 @@ class Browse:
         # On a deux liste, une avec la représentation des joueurs en str
         # pour le menu et l'autre contenant les objets joueurs pour récuperer
         # l'index reel dans la liste des joueur de la base de données
-        displayed_list, players_list_object = self.display_player_list(object_list=True)
+        displayed_list, players_list_object = self.display_player_list(self.players_dao.players_list, object_list=True)
         participating_players_index_list = []
         participating_players_object_list = []
 
@@ -218,13 +232,13 @@ class Browse:
 
         return participating_players_index_list, participating_players_object_list
 
-    def display_player_list(self, object_list=False):
+    def display_player_list(self, player_list, object_list=False):
         displayed_list = []
         players_list_object = []
-        for player in self.players_dao.players_list:
+        for player in player_list:
             displayed_list.append(str(player))
             players_list_object.append(player)
-        displayed_list.append("quit")  # we add the quit choice
+        displayed_list.append(stop_function)  # we add the quit choice
         if object_list:
             return displayed_list, players_list_object
         else:
@@ -246,18 +260,29 @@ class Browse:
         for tournament in tournament_list:
             displayed_list.append(str(tournament))
             tournament_list_object.append(tournament)
-        displayed_list.append("quit")  # we add the quit choice
+        displayed_list.append(stop_function)  # we add the quit choice
         if object_list:
             return displayed_list, tournament_list_object
         else:
             return displayed_list
+
+    @staticmethod
+    def display_match_list(round_list):
+
+        displayed_list = []
+        match_list_object = []
+        for match in round_list:
+            displayed_list.append(str(match))
+            match_list_object.append(match)
+            displayed_list.append(stop_function)
+        return displayed_list, match_list_object
 
     def data_controller(self, data_name, empty_field_permitted=False):
         """Method which control user's inputs conformity"""
 
         while True:
             data = self.field_menu.printing_field(FIELD_MESSAGE[data_name][0])
-            if data == "quit":
+            if data == stop_function:
                 return data
             elif data_name in str_controller:
                 if self.str_control_expression.match(data) is not None:
@@ -355,9 +380,6 @@ class Browse:
 
         self.tournaments_dao.tournaments_list.append(new_tournament)
         self.tournaments_dao.save_dao()
-
-        print("actif", browser.tournaments_dao.tournaments_list)
-        print(browser.tournaments_dao.active_tournaments_list)
 
         return self.main_menu_control()
 

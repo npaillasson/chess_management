@@ -21,14 +21,16 @@ FIELD_MESSAGE = {"last_name": ["veuillez saisir le nom du joueur: ", "Nom invali
                  "tournament_place": ["Ou se déroule le tournoi ? ", "lieu invalide ! "],
                  "tournament_comments": ["Voulez-vous faire un commentaire (facultatif)? "],
                  "tournament_date": ["A quelle date le tournoi commence t'il ? ", "date invalide !"],
-                 "end_date": ["A quelle date le tournoi fini t'il ? ", "date invalide !"]}
+                 "end_date": ["A quelle date le tournoi fini t'il ? ", "date invalide !"],
+                 "score_request": ["Veuillez saisir le score du joueur: ", "score invalide ! "]}
 
 # VALIDATION MENUS MESSAGE (key = data name, value = list which contains all message about data)
 # {"name" : [message, [choice 1, choice 2]], ...]
 PROPOSAL_MENU_MESSAGE = {"gender": ["Rensseigner le genre du joueur", ["Femme", "Homme", "Autre"]],
                          "other_date_request": ["Le tournoi se déroule t'il sur plus d'un jour ?",
                                                 ["Oui", "Non"]],
-                         "time_control": ["quel est le type de jeu souhaité?", ["Bullet", "Blitz", "Fast chess"]]}
+                         "time_control": ["quel est le type de jeu souhaité?", ["Bullet", "Blitz", "Fast chess"]],
+                         "set_match": "choisissez le match dont vous souhaitez saisir le score"}
 
 # SIGN MESSAGE
 welcome_message = "Bienvenue dans chess management !"
