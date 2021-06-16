@@ -178,7 +178,6 @@ class Browse:
             self.players_dao.save_dao()
             return self.main_menu_control()
 
-
     def select_tournaments(self):
 
         displayed_list, object_list = self.display_tournament_list(object_list=True, active_only=True)
@@ -191,9 +190,10 @@ class Browse:
         else:
             return self.tournaments_management(object_list[selected_tournament_index])
 
-
     def tournaments_management(self, tournament):
 
+        self.sign.printing_sign(menu.tour_number)
+        self.sign.printing_sign(tournament.actual_tour_number + 1)
         tournament.swiss_system() #ici on affiche les joueurs
         while tournament.actual_tour_number < tournament.number_of_turns + 1:
             displayed_list, object_list = self.display_match_list(tournament.round_list[tournament.actual_tour_number])
@@ -206,7 +206,9 @@ class Browse:
             else: # ici on affiche une premiere page d'entrée pour le joueur 1 puis une seconde pour le joueur 2
                 while True:
                     self.sign.printing_sign(object_list[selected_match_index].players[0])
-                    self.field_menu.printing_field("score_request")
+                    score_player_1 = self.field_menu.printing_field("score_request")
+                    self.sign.printing_sign(object_list[selected_match_index].players[1])
+                    score_player_2 = self.field_menu.printing_field("score_request")
                     #A FINIR, CONTROLLER ET AJOUTER LE SCORE POUR LA SUITE DE LA RONDE SUISSE
 
     def add_players_in_tournament(self):
@@ -274,7 +276,7 @@ class Browse:
         for match in round_list:
             displayed_list.append(str(match))
             match_list_object.append(match)
-            displayed_list.append(stop_function)
+        displayed_list.append(stop_function)
         return displayed_list, match_list_object
 
     def data_controller(self, data_name, empty_field_permitted=False):
@@ -391,10 +393,8 @@ def program_init():
         os.mkdir("data")
         return False
     else:
-        if not os.path.exists(DAO_PATH):
-            return False
-        else:
-            return True
+        return os.path.exists(DAO_PATH)
+
 
 
 browser = Browse(main_menu_choice=MAIN_MENU_CHOICES,
@@ -408,6 +408,4 @@ browser = Browse(main_menu_choice=MAIN_MENU_CHOICES,
 
 browser.players_dao.load_dao()
 browser.tournaments_dao.load_dao(browser.players_dao.players_list)
-print("inactif", browser.tournaments_dao.tournaments_list)
-print("actif", browser.tournaments_dao.active_tournaments_list)
 browser.main_menu_control()

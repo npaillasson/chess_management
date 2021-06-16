@@ -47,7 +47,7 @@ class Player:
         return "{} {} né(e) le {} : {} pts".format(self.last_name, self.first_name, self.date_of_birth, self.rank)
 
     def __repr__(self):
-        return self.__str__()
+        return str(self)
 
 class Match:
     """class which represent a match"""
@@ -211,7 +211,6 @@ class TournamentsDAO(DAO):
                                                    tournament_comments=serialized_tournament["tournament_comments"],
                                                    actual_tour_number=serialized_tournament["actual_tour_number"],
                                                    state=serialized_tournament["state"]))
-        print(new_tournaments_list)
 
         self.tournaments_distribution(new_tournaments_list)
 

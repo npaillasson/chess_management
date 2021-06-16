@@ -37,10 +37,14 @@ class FieldMenu:
     @staticmethod
     def printing_field(message):
         """Method which print the field"""
-        print("taper 'quit' pour revenir au menu principale")
-        value = input(message)
-        return value
-
+        while True:
+            print("taper 'quit' pour revenir au menu principale")
+            try:
+                value = input(message)
+            except UnicodeDecodeError:
+                print("la chaine de caractère contient un caractère interdit...")
+                continue
+            return value.strip()
 
 # class that allows to display a message
 class Sign:
@@ -92,3 +96,4 @@ class ValidationMenu(ChoiceMenu):
         else:
             choice = self.printing_menu_value(validation_choices)
         return choice
+
