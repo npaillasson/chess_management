@@ -55,9 +55,9 @@ class Sign:
         pass
 
     @staticmethod
-    def printing_sign(message):
+    def printing_sign(*message):
         """method which print the sign"""
-        print(message)
+        print(*message)
 
 
 class ValidationMenu(ChoiceMenu):

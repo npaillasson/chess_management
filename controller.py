@@ -3,6 +3,8 @@
 
 import os
 import time
+import signal
+import sys
 from datetime import datetime
 import re
 from view import ChoiceMenu, FieldMenu, Sign, ValidationMenu
@@ -32,7 +34,7 @@ str_int_controller =["tournament_name", "tournament_place", "tournament_comments
 # Field which contains a date
 date_controller = ["date_of_birth", "tournament_date", "end_date"]
 # Field  which contains only int, no str
-int_controller = ["rank", "number_of_turn"]
+int_controller = ["rank", "number_of_turn", "score_request"]
 # Data already checked as proposal list
 no_controller = ["gender", "selected_player", "time_control", "participating_players", "other_date_request"]
 
@@ -81,8 +83,10 @@ class Browse:
             return self.tournament_creator_control()
         elif choice == 2:  # launch the menu for editing player's scores #A continuer!
             return self.score_edit_controller()
-        elif choice ==3:
+        elif choice == 3:
             return self.select_tournaments()
+        elif choice == 6:
+            sys.exit(0)
 
     # function that manage the players creation feature
     def player_creator_control(self):
@@ -154,6 +158,7 @@ class Browse:
             if choice == 0:
                 print("OK")
                 self.add_tournament_in_dao(tournament_information)
+                self.tournaments_dao.tournaments_distribution()
                 break
             elif choice == 1:
                 continue
@@ -192,24 +197,46 @@ class Browse:
 
     def tournaments_management(self, tournament):
 
-        self.sign.printing_sign(menu.tour_number)
-        self.sign.printing_sign(tournament.actual_tour_number + 1)
-        tournament.swiss_system() #ici on affiche les joueurs
+        self.sign.printing_sign(menu.tour_number, str(tournament.actual_tour_number + 1))
+        tournament.swiss_system() #ici on affiche match et donc les joueurs
         while tournament.actual_tour_number < tournament.number_of_turns + 1:
             displayed_list, object_list = self.display_match_list(tournament.round_list[tournament.actual_tour_number])
             selected_match_index = self.validation_menu.printing_proposal_menu(PROPOSAL_MENU_MESSAGE["set_match"],
                                                                                validation_choices=displayed_list)
+            match = object_list[selected_match_index]
 
             if selected_match_index == len(displayed_list) - 1:
                 return self.main_menu_control()
 
             else: # ici on affiche une premiere page d'entrée pour le joueur 1 puis une seconde pour le joueur 2
                 while True:
-                    self.sign.printing_sign(object_list[selected_match_index].players[0])
-                    score_player_1 = self.field_menu.printing_field("score_request")
-                    self.sign.printing_sign(object_list[selected_match_index].players[1])
-                    score_player_2 = self.field_menu.printing_field("score_request")
-                    #A FINIR, CONTROLLER ET AJOUTER LE SCORE POUR LA SUITE DE LA RONDE SUISSE
+                    player_1 = match.players[0]
+                    player_1_index = tournament.players_list.index(player_1)
+                    player_2 = match.players[1]
+                    player_2_index = tournament.players_list.index(player_2)
+                    self.sign.printing_sign(FIELD_MESSAGE["score_request"][0],
+                                            match.players[0])
+                    player_1_score = self.set_menu("score_request")
+                    self.sign.printing_sign(match.players[1])
+                    player_2_score = self.set_menu("score_request")
+                    choice = self.validation_menu.printing_correction_menu(menu.match_formatting(player_1,
+                                                                                                 player_2,
+                                                                                                 player_1_score,
+                                                                                                 player_2_score))
+                    if choice == 0:
+                        match.result_player_1 = player_1_score
+                        match.result_player_2 = player_2_score
+                        tournament.players_points[player_1_index] = player_1_score
+                        tournament.players_points[player_2_index] = player_2_score
+                        if player_1_score == player_2_score:
+                            match.winner = "Nul"
+                        elif player_1_score > player_2_score:
+                            match.winner = player_1
+                        else:
+                            match.winner = player_2
+                        print(match)
+
+
 
     def add_players_in_tournament(self):
         """method which allows to add 8 players in a tournament"""
@@ -274,8 +301,10 @@ class Browse:
         displayed_list = []
         match_list_object = []
         for match in round_list:
-            displayed_list.append(str(match))
-            match_list_object.append(match)
+            if match.winner == None:
+                displayed_list.append(str(match))
+                match_list_object.append(match)
+        displayed_list.append(menu.abort_tournament)
         displayed_list.append(stop_function)
         return displayed_list, match_list_object
 
@@ -395,7 +424,8 @@ def program_init():
     else:
         return os.path.exists(DAO_PATH)
 
-
+def program_ending(signal, frame):
+    sys.exit(0)
 
 browser = Browse(main_menu_choice=MAIN_MENU_CHOICES,
                  correction_menu_choice=CORRECTION_MENU_CHOICES,

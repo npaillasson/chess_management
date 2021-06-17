@@ -54,15 +54,18 @@ class Match:
     def __init__(self, player_1, player_2):
         """Match constructor"""
         self.players = [player_1, player_2]
-        self.results_player_1 = "Not set"
-        self.results_player_2 = "Not set"
-        self.winner = "Not set"
+        self.result_player_1 = None
+        self.result_player_2 = None
+        self.winner = None
 
     def __repr__(self):
-        if self.winner == "Not set":
-            return "{} contre {}".format(self.players[0], self.players[1])
+        if self.winner == None:
+            return "{} contre {}".format(self.players[0].first_name, self.players[0].last_name,
+                                         self.players[1].first_name, self.players[1].last_name)
         else:
-            return "{} contre {} gagant : {}".format(self.players[0], self.players[1], self.winner)
+            return "{} à obtenu {}pts\n {} à obtenu {}pts\ngagant : {}".format(self.players[0], self.result_player_1,
+                                                                                self.players[1], self.result_player_2,
+                                                                                self.winner.first)
 
 class Round:
     """class which represent a round (list of 4 matches)"""

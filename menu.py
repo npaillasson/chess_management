@@ -37,6 +37,7 @@ welcome_message = "Bienvenue dans chess management !"
 player_already_exists = "Le joueur exist déjà !"
 not_enough_players = "Vous avez moins de 8 joueurs dans la base de données !"
 tour_number = "Tour numéro"
+abort_tournament = "Abandonner le tournoi"
 
 
 def players_formatting(player_information):
@@ -61,3 +62,12 @@ def tournament_formatting(tournament_information):
                tournament_information["players_object_list"],
                tournament_information["time_control"],
                tournament_information["tournament_comments"])
+
+def match_formatting(player_1, player_2, player_1_score, player_2_score):
+
+    return "{} {} score: {}pts\n{} {} score: {}".format(player_1.first_name,
+                                                        player_1.last_name,
+                                                        player_1_score,
+                                                        player_2.first_name,
+                                                        player_2.last_name,
+                                                        player_2_score)
