@@ -7,6 +7,8 @@ import signal
 import sys
 from datetime import datetime
 import re
+
+import model
 from view import ChoiceMenu, FieldMenu, Sign, ValidationMenu
 from menu import MAIN_MENU_CHOICES, FIELD_MESSAGE, CORRECTION_MENU_CHOICES,\
     PROPOSAL_MENU_MESSAGE, players_formatting, tournament_formatting
@@ -103,10 +105,14 @@ class Browse:
                 break
             player_information["first_name"] = first_name.capitalize()
             date_of_birth = self.set_menu("date_of_birth")
+            if date_of_birth == stop_function:
+                break
             player_information["date_of_birth"] = date_of_birth
             gender = self.set_menu("gender")
             player_information["gender"] = gender
             rank = self.set_menu("rank")
+            if rank == stop_function:
+                break
             player_information["rank"] = rank
             choice = self.validation_menu.\
                 printing_correction_menu(players_formatting(player_information))
@@ -135,7 +141,7 @@ class Browse:
             tournament_date = self.set_menu("tournament_date", date_not_passed=False)
             tournament_information["tournament_date"] = tournament_date
             other_date_request = self.set_menu("other_date_request", index=True)
-            if other_date_request == 0:
+            if other_date_request == 1:
                 end_date = self.set_menu("end_date", date_not_passed=False,
                                          greater_than=tournament_information["tournament_date"])
             else:
@@ -158,7 +164,7 @@ class Browse:
             if choice == 0:
                 print("OK")
                 self.add_tournament_in_dao(tournament_information)
-                self.tournaments_dao.tournaments_distribution()
+                #self.tournaments_dao.tournaments_distribution(self.tournaments_dao.tournaments_list)
                 break
             elif choice == 1:
                 continue
@@ -203,12 +209,18 @@ class Browse:
             displayed_list, object_list = self.display_match_list(tournament.round_list[tournament.actual_tour_number])
             selected_match_index = self.validation_menu.printing_proposal_menu(PROPOSAL_MENU_MESSAGE["set_match"],
                                                                                validation_choices=displayed_list)
-            match = object_list[selected_match_index]
 
             if selected_match_index == len(displayed_list) - 1:
                 return self.main_menu_control()
 
+            elif selected_match_index == len(displayed_list) - 2:
+                return self.aborted_tournament(tournament)
+
+            elif selected_match_index == len(displayed_list) - 3:
+                return self.add_comments_to_tournament(tournament)
+
             else: # ici on affiche une premiere page d'entrée pour le joueur 1 puis une seconde pour le joueur 2
+                match = object_list[selected_match_index]
                 while True:
                     player_1 = match.players[0]
                     player_1_index = tournament.players_list.index(player_1)
@@ -229,12 +241,51 @@ class Browse:
                         tournament.players_points[player_1_index] = player_1_score
                         tournament.players_points[player_2_index] = player_2_score
                         if player_1_score == player_2_score:
-                            match.winner = "Nul"
+                            match.winner = "Null"
                         elif player_1_score > player_2_score:
                             match.winner = player_1
                         else:
                             match.winner = player_2
-                        print(match)
+                        self.tours_management(tournament, object_list)
+                    if choice == 1:
+                        continue
+                    else:
+                        return self.select_tournaments()
+
+    def tours_management(self, tournament, object_list):
+
+        actual_match_list = object_list
+        remaining_match = 0
+        for match in actual_match_list:
+            if not match.winner:
+                remaining_match =+ 1
+        if remaining_match == 0:
+            tournament.actual_tour_number += 1
+            if tournament.actual_tour_number == tournament.number_of_turns:
+                tournament.state = model.TOURNAMENTS_STATES[1]
+                self.tournaments_dao.save_dao()
+                self.sign.printing_sign(menu.end_of_tournament)
+                #ajout de la fonction qui distribue les points du tournoi au solde de point de chaque joueur
+                return self.main_menu_control()
+        else:
+            self.tournaments_dao.save_dao()
+            return self.tournaments_management(tournament)
+
+    def aborted_tournament(self, tournament):
+        """function which manage the drop out af tournament"""
+        choice = self.validation_menu.printing_proposal_menu(PROPOSAL_MENU_MESSAGE["abort_tournament"][0],
+                                                             PROPOSAL_MENU_MESSAGE["abort_tournament"][1],
+                                                             index=True)
+        if choice == 1:
+            tournament.state = model.TOURNAMENTS_STATES[2]
+            self.tournaments_dao.save_dao()
+            #self.tournaments_dao.tournaments_distribution(tournaments_list=self.tournaments_dao.tournaments_list)
+            return self.main_menu_control()
+        else:
+            return self.tournaments_management(tournament)
+
+    def add_tournament_points_to_player(self, tournament):
+        """function which add tournament point to the players at the end of the tournament"""
 
 
 
@@ -301,12 +352,22 @@ class Browse:
         displayed_list = []
         match_list_object = []
         for match in round_list:
-            if match.winner == None:
+            if not match.winner:
                 displayed_list.append(str(match))
                 match_list_object.append(match)
+        displayed_list.append(menu.add_comments)
         displayed_list.append(menu.abort_tournament)
         displayed_list.append(stop_function)
         return displayed_list, match_list_object
+
+    def add_comments_to_tournament(self, tournament):
+        new_comment = self.set_menu("tournament_comments")
+        if new_comment == stop_function:
+            print("j'annule")
+            return self.tournaments_management(tournament)
+        tournament.tournament_comments = tournament.tournament_comments + "\n{}".format(new_comment)
+        self.tournaments_dao.save_dao()
+        return self.tournaments_management(tournament)
 
     def data_controller(self, data_name, empty_field_permitted=False):
         """Method which control user's inputs conformity"""
@@ -339,6 +400,8 @@ class Browse:
 
         while True:
             data = self.field_menu.printing_field(FIELD_MESSAGE[data_name][0])
+            if data == stop_function:
+                return data
             try:
                 time_object = time.strptime(data, DATE_FORMAT)
             except ValueError:

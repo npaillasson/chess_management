@@ -38,11 +38,10 @@ class FieldMenu:
     def printing_field(message):
         """Method which print the field"""
         while True:
-            print("taper 'quit' pour revenir au menu principale")
             try:
                 value = input(message)
             except UnicodeDecodeError:
-                print("la chaine de caractère contient un caractère interdit...")
+                print("la chaine de caractère contient un caractère interdit... (par exemple '°')")
                 continue
             return value.strip()
 

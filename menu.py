@@ -12,6 +12,7 @@ CORRECTION_MENU_CHOICES = ["Valider !", "Corriger", "Annuler"]
 
 # FIELD MENUS MESSAGE (key = data name, value = list which contains all message about data)
 # {"name" : [request_message, incorrect_input_message], ...]
+yes_no_menu = ["Non", "Oui"]
 FIELD_MESSAGE = {"last_name": ["veuillez saisir le nom du joueur: ", "Nom invalide !"],
                  "first_name": ["veuillez saisir le prénom du joueur: ", "Prénom invalide !"],
                  "date_of_birth": ["veuillez saisir la date de naissance du joueur: ", "date invalide !"],
@@ -28,16 +29,20 @@ FIELD_MESSAGE = {"last_name": ["veuillez saisir le nom du joueur: ", "Nom invali
 # {"name" : [message, [choice 1, choice 2]], ...]
 PROPOSAL_MENU_MESSAGE = {"gender": ["Rensseigner le genre du joueur", ["Femme", "Homme", "Autre"]],
                          "other_date_request": ["Le tournoi se déroule t'il sur plus d'un jour ?",
-                                                ["Oui", "Non"]],
+                                                yes_no_menu],
                          "time_control": ["quel est le type de jeu souhaité?", ["Bullet", "Blitz", "Fast chess"]],
-                         "set_match": "choisissez le match dont vous souhaitez saisir le score"}
+                         "set_match": "choisissez le match dont vous souhaitez saisir le score",
+                         "abort_tournament": ["souhaitez-vous annuler définitivement le tournoi ?",
+                                               yes_no_menu]}
 
 # SIGN MESSAGE
 welcome_message = "Bienvenue dans chess management !"
 player_already_exists = "Le joueur exist déjà !"
 not_enough_players = "Vous avez moins de 8 joueurs dans la base de données !"
 tour_number = "Tour numéro"
+add_comments = "ajouter un commentaire au tournoi"
 abort_tournament = "Abandonner le tournoi"
+end_of_tournament = "Le tournoi est désormais terminé !"
 
 
 def players_formatting(player_information):
@@ -63,11 +68,12 @@ def tournament_formatting(tournament_information):
                tournament_information["time_control"],
                tournament_information["tournament_comments"])
 
+
 def match_formatting(player_1, player_2, player_1_score, player_2_score):
 
-    return "{} {} score: {}pts\n{} {} score: {}".format(player_1.first_name,
-                                                        player_1.last_name,
-                                                        player_1_score,
-                                                        player_2.first_name,
-                                                        player_2.last_name,
-                                                        player_2_score)
+    return "{} {} score: {}pts\n{} {} score: {}pts".format(player_1.first_name,
+                                                           player_1.last_name,
+                                                           player_1_score,
+                                                           player_2.first_name,
+                                                           player_2.last_name,
+                                                           player_2_score)

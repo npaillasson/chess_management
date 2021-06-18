@@ -54,18 +54,19 @@ class Match:
     def __init__(self, player_1, player_2):
         """Match constructor"""
         self.players = [player_1, player_2]
+        self.player_1_information = self.players.last_name + self.players[0].first_name
+        self.player_2_information = self.players[1].last_name + self.players[1].first_name
         self.result_player_1 = None
         self.result_player_2 = None
         self.winner = None
 
     def __repr__(self):
         if self.winner == None:
-            return "{} contre {}".format(self.players[0].first_name, self.players[0].last_name,
-                                         self.players[1].first_name, self.players[1].last_name)
+            return "{} contre {}".format(self.player_1_information, self.player_2_information)
         else:
-            return "{} à obtenu {}pts\n {} à obtenu {}pts\ngagant : {}".format(self.players[0], self.result_player_1,
-                                                                                self.players[1], self.result_player_2,
-                                                                                self.winner.first)
+            return "{} à obtenu {}pts\n{} à obtenu {}pts\ngagant : {}".format(self.player_1_information, self.result_player_1,
+                                                                              self.player_2_information, self.result_player_2,
+                                                                              self.winner)
 
 class Round:
     """class which represent a round (list of 4 matches)"""
@@ -222,7 +223,9 @@ class TournamentsDAO(DAO):
 
         serialized_tournaments_list = []
         merge_tournament_list = self.tournaments_list + self.active_tournaments_list
+        self.tournaments_distribution(self.tournaments_list)
         for tournament in merge_tournament_list:
+            # = self.match_serialization(tournament)
             serialized_tournament = {"tournament_name": tournament.tournament_name,
                                      "tournament_place": tournament.tournament_place,
                                      "tournament_date": tournament.tournament_date,
@@ -238,6 +241,31 @@ class TournamentsDAO(DAO):
             serialized_tournaments_list.append(serialized_tournament)
             self.tournaments_table.truncate()
             self.tournaments_table.insert_multiple(serialized_tournaments_list)
+
+    def match_serialization(self, tournament):
+        """function which serialise match object in round_list"""
+        serialized_round_list = []
+        for round in tournament.round_list:
+            serialized_match_list = []
+            for match in round:
+                serialized_match = {"players": match.players,
+                                    "player_1_information": match.player_1_information,
+                                    "player_2_information": match.player_2_information,
+                                    "result_player_1": match.result_player_1,
+                                    "result_player_2": match.result_player_2,
+                                    "winner": match.winner}
+                serialized_match_list.append(serialized_match)
+            serialized_round_list.append(serialized_match_list)
+        return serialized_round_list
+
+    def match_deserialization(self, serialized_round_list):
+        """function which deserialize match"""
+        round_list = []
+        for round in serialized_round_list:
+            for serialized_match in round:
+                pass
+
+
 
     @staticmethod
     def find_player_object(serialized_tournament, players_list):
