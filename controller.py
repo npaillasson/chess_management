@@ -71,7 +71,7 @@ class Browse:
 
         # instancing DataBase
         self.players_dao = players_dao()
-        self.tournaments_dao = tournaments_dao()
+        self.tournaments_dao = tournaments_dao(self.players_dao)
 
     def main_menu_control(self):
         """main menu controller function"""
@@ -191,6 +191,7 @@ class Browse:
 
     def select_tournaments(self):
 
+        ##self.tournaments_dao.tournaments_distribution(self.tournaments_dao.tournaments_list)
         displayed_list, object_list = self.display_tournament_list(object_list=True, active_only=True)
         selected_tournament_index = self.choice_menu.printing_menu_index(displayed_list)
 
@@ -222,14 +223,13 @@ class Browse:
             else: # ici on affiche une premiere page d'entrée pour le joueur 1 puis une seconde pour le joueur 2
                 match = object_list[selected_match_index]
                 while True:
-                    player_1 = match.players[0]
+                    player_1 = match.players_object_list[0]
                     player_1_index = tournament.players_list.index(player_1)
-                    player_2 = match.players[1]
+                    player_2 = match.players_object_list[1]
                     player_2_index = tournament.players_list.index(player_2)
-                    self.sign.printing_sign(FIELD_MESSAGE["score_request"][0],
-                                            match.players[0])
+                    self.sign.printing_sign(player_1)
                     player_1_score = self.set_menu("score_request")
-                    self.sign.printing_sign(match.players[1])
+                    self.sign.printing_sign(player_2)
                     player_2_score = self.set_menu("score_request")
                     choice = self.validation_menu.printing_correction_menu(menu.match_formatting(player_1,
                                                                                                  player_2,
@@ -241,11 +241,11 @@ class Browse:
                         tournament.players_points[player_1_index] = player_1_score
                         tournament.players_points[player_2_index] = player_2_score
                         if player_1_score == player_2_score:
-                            match.winner = "Null"
+                            match.winner_index = "Null"
                         elif player_1_score > player_2_score:
-                            match.winner = player_1
+                            match.winner_index = player_1_index
                         else:
-                            match.winner = player_2
+                            match.winner_index = player_2_index
                         self.tours_management(tournament, object_list)
                     if choice == 1:
                         continue
@@ -257,7 +257,7 @@ class Browse:
         actual_match_list = object_list
         remaining_match = 0
         for match in actual_match_list:
-            if not match.winner:
+            if not match.winner_index:
                 remaining_match =+ 1
         if remaining_match == 0:
             tournament.actual_tour_number += 1
@@ -352,7 +352,7 @@ class Browse:
         displayed_list = []
         match_list_object = []
         for match in round_list:
-            if not match.winner:
+            if not match.winner_index:
                 displayed_list.append(str(match))
                 match_list_object.append(match)
         displayed_list.append(menu.add_comments)
@@ -490,6 +490,7 @@ def program_init():
 def program_ending(signal, frame):
     sys.exit(0)
 
+
 browser = Browse(main_menu_choice=MAIN_MENU_CHOICES,
                  correction_menu_choice=CORRECTION_MENU_CHOICES,
                  str_control_expression=STR_CONTROL_EXPRESSION,
@@ -500,5 +501,7 @@ browser = Browse(main_menu_choice=MAIN_MENU_CHOICES,
                  tournaments_dao=TournamentsDAO)
 
 browser.players_dao.load_dao()
-browser.tournaments_dao.load_dao(browser.players_dao.players_list)
+browser.tournaments_dao.load_dao()
 browser.main_menu_control()
+
+#browser.players_dao.players_list
