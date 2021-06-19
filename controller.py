@@ -75,6 +75,8 @@ class Browse:
 
     def main_menu_control(self):
         """main menu controller function"""
+        print("active tournament list :", self.tournaments_dao.active_tournaments_list)
+        print("tournament list :", self.tournaments_dao.tournaments_list)
         choice = self.choice_menu.printing_menu_index(self.main_menu_choice)
         if choice == 0:  # launch the players creation menu
             return self.player_creator_control()
@@ -191,7 +193,7 @@ class Browse:
 
     def select_tournaments(self):
 
-        ##self.tournaments_dao.tournaments_distribution(self.tournaments_dao.tournaments_list)
+        #self.tournaments_dao.tournaments_distribution(self.tournaments_dao.tournaments_list)
         displayed_list, object_list = self.display_tournament_list(object_list=True, active_only=True)
         selected_tournament_index = self.choice_menu.printing_menu_index(displayed_list)
 
@@ -222,6 +224,7 @@ class Browse:
 
             else: # ici on affiche une premiere page d'entrée pour le joueur 1 puis une seconde pour le joueur 2
                 match = object_list[selected_match_index]
+                print(self.tournaments_dao.active_tournaments_list)
                 while True:
                     player_1 = match.players_object_list[0]
                     player_1_index = tournament.players_list.index(player_1)
@@ -241,7 +244,7 @@ class Browse:
                         tournament.players_points[player_1_index] = player_1_score
                         tournament.players_points[player_2_index] = player_2_score
                         if player_1_score == player_2_score:
-                            match.winner_index = "Null"
+                            match.winner_index = "draw"
                         elif player_1_score > player_2_score:
                             match.winner_index = player_1_index
                         else:
@@ -269,6 +272,7 @@ class Browse:
                 return self.main_menu_control()
         else:
             self.tournaments_dao.save_dao()
+            #self.tournaments_dao.load_dao()
             return self.tournaments_management(tournament)
 
     def aborted_tournament(self, tournament):
@@ -363,7 +367,6 @@ class Browse:
     def add_comments_to_tournament(self, tournament):
         new_comment = self.set_menu("tournament_comments")
         if new_comment == stop_function:
-            print("j'annule")
             return self.tournaments_management(tournament)
         tournament.tournament_comments = tournament.tournament_comments + "\n{}".format(new_comment)
         self.tournaments_dao.save_dao()
