@@ -76,6 +76,7 @@ class Browse:
     def main_menu_control(self):
         """main menu controller function"""
         print("active tournament list :", self.tournaments_dao.active_tournaments_list)
+        print("archived tournament list :", self.tournaments_dao.archived_tournaments_list)
         print("tournament list :", self.tournaments_dao.tournaments_list)
         choice = self.choice_menu.printing_menu_index(self.main_menu_choice)
         if choice == 0:  # launch the players creation menu
@@ -90,6 +91,7 @@ class Browse:
         elif choice == 3:
             return self.select_tournaments()
         elif choice == 6:
+            self.tournaments_dao.save_dao()
             sys.exit(0)
 
     # function that manage the players creation feature
@@ -166,7 +168,7 @@ class Browse:
             if choice == 0:
                 print("OK")
                 self.add_tournament_in_dao(tournament_information)
-                #self.tournaments_dao.tournaments_distribution(self.tournaments_dao.tournaments_list)
+                self.tournaments_dao.tournaments_distribution(self.tournaments_dao.tournaments_list)
                 break
             elif choice == 1:
                 continue
@@ -209,7 +211,8 @@ class Browse:
         self.sign.printing_sign(menu.tour_number, str(tournament.actual_tour_number + 1))
         tournament.swiss_system() #ici on affiche match et donc les joueurs
         while tournament.actual_tour_number < tournament.number_of_turns + 1:
-            displayed_list, object_list = self.display_match_list(tournament.round_list[tournament.actual_tour_number])
+            displayed_list, match_object_list = self.display_match_list(tournament.round_list
+                                                                        [tournament.actual_tour_number])
             selected_match_index = self.validation_menu.printing_proposal_menu(PROPOSAL_MENU_MESSAGE["set_match"],
                                                                                validation_choices=displayed_list)
 
@@ -223,7 +226,7 @@ class Browse:
                 return self.add_comments_to_tournament(tournament)
 
             else: # ici on affiche une premiere page d'entrée pour le joueur 1 puis une seconde pour le joueur 2
-                match = object_list[selected_match_index]
+                match = match_object_list[selected_match_index]
                 print(self.tournaments_dao.active_tournaments_list)
                 while True:
                     player_1 = match.players_object_list[0]
@@ -241,15 +244,20 @@ class Browse:
                     if choice == 0:
                         match.result_player_1 = player_1_score
                         match.result_player_2 = player_2_score
-                        tournament.players_points[player_1_index] = player_1_score
+
                         tournament.players_points[player_2_index] = player_2_score
                         if player_1_score == player_2_score:
                             match.winner_index = "draw"
+                            tournament.players_points[player_1_index] += model.NULL_POINT
+                            tournament.players_points[player_2_index] += model.NULL_POINT
                         elif player_1_score > player_2_score:
                             match.winner_index = player_1_index
+                            tournament.players_points[player_1_index] += model.WINNER_POINT
                         else:
                             match.winner_index = player_2_index
-                        self.tours_management(tournament, object_list)
+                            tournament.players_points[player_2_index] += model.Win
+
+                        self.tours_management(tournament, match_object_list)
                     if choice == 1:
                         continue
                     else:
@@ -261,7 +269,7 @@ class Browse:
         remaining_match = 0
         for match in actual_match_list:
             if not match.winner_index:
-                remaining_match =+ 1
+                remaining_match += 1
         if remaining_match == 0:
             tournament.actual_tour_number += 1
             if tournament.actual_tour_number == tournament.number_of_turns:
@@ -370,6 +378,7 @@ class Browse:
             return self.tournaments_management(tournament)
         tournament.tournament_comments = tournament.tournament_comments + "\n{}".format(new_comment)
         self.tournaments_dao.save_dao()
+        self.tournaments_dao.load_dao()
         return self.tournaments_management(tournament)
 
     def data_controller(self, data_name, empty_field_permitted=False):
@@ -477,6 +486,7 @@ class Browse:
 
         self.tournaments_dao.tournaments_list.append(new_tournament)
         self.tournaments_dao.save_dao()
+        self.tournaments_dao.load_dao()
 
         return self.main_menu_control()
 
@@ -490,8 +500,7 @@ def program_init():
     else:
         return os.path.exists(DAO_PATH)
 
-def program_ending(signal, frame):
-    sys.exit(0)
+
 
 
 browser = Browse(main_menu_choice=MAIN_MENU_CHOICES,

@@ -15,6 +15,10 @@ DAO_OBJECT = tinydb.TinyDB(DAO_PATH)
 
 list_of_ongoing_tournaments = []
 
+WINNER_POINT = 1
+
+NULL_POINT = 0.5
+
 
 class Player:
     """class which represent a player"""
@@ -51,25 +55,19 @@ class Player:
 
 class Match:
     """class which represent a match"""
-    def __init__(self, players_object_list, players_index_list, result_player_1=None, result_player_2=None,
-                 winner_index=None):
+    def __init__(self, players_object_list, players_index_list, winner_index=None):
         """Match constructor"""
         self.players_object_list = players_object_list
         self.players_index_list = players_index_list
         self.player_1_information = self.players_object_list[0].last_name + self.players_object_list[0].first_name
         self.player_2_information = self.players_object_list[1].last_name + self.players_object_list[1].first_name
-        self.result_player_1 = result_player_1
-        self.result_player_2 = result_player_2
         self.winner_index = winner_index
 
     def __repr__(self):
         if not self.winner_index:
             return "{} contre {}".format(self.player_1_information, self.player_2_information)
         else:
-            return "{} à obtenu {}pts\n{} à obtenu {}pts\ngagant : {}".\
-                format(self.player_1_information, self.result_player_1,
-                       self.player_2_information, self.result_player_2,
-                       self.players_object_list[self.winner_index])
+            return "Le gagnant est: {}".format(self.players_object_list[self.winner_index])
 
 class Round:
     """class which represent a round (list of 4 matches)"""
@@ -88,10 +86,12 @@ class Tournament:
     """class which represent a tournament"""
 
     def __init__(self, tournament_name, tournament_place, tournament_date, end_date, time_controller,
-                 number_of_turns, players_index_list, players_object_list, players_points=[0, 0, 0, 0, 0, 0, 0, 0],
+                 number_of_turns, players_index_list, players_object_list, players_points=None,
                  actual_tour_number=0, state=TOURNAMENTS_STATES[0], round_list=None, tournament_comments=None):
         """Tournament constructor"""
 
+        if players_points is None:
+            players_points = [0, 0, 0, 0, 0, 0, 0, 0]
         if round_list is None:
             round_list = []
         if tournament_comments is None:
@@ -199,6 +199,7 @@ class TournamentsDAO(DAO):
 
         DAO.__init__(self)
         self.tournaments_list = []
+        self.archived_tournaments_list = []
         self.active_tournaments_list = []
         self.tournaments_table = self.dao.table("tournaments")
         self.player_dao = player_dao
@@ -232,8 +233,7 @@ class TournamentsDAO(DAO):
         """Function which save the data into the database"""
 
         serialized_tournaments_list = []
-        merge_tournament_list = self.tournaments_list + self.active_tournaments_list
-        for tournament in merge_tournament_list:
+        for tournament in self.tournaments_list:
             serialized_round_list = self.match_serialization(tournament)
             serialized_tournament = {"tournament_name": tournament.tournament_name,
                                      "tournament_place": tournament.tournament_place,
@@ -261,14 +261,13 @@ class TournamentsDAO(DAO):
             for tour in tournament.round_list:
                 serialized_match_list = []
                 for match in tour:
+                    print(match)
                     serialized_match = {"players_index_list": match.players_index_list,
-                                        "result_player_1": match.result_player_1,
-                                        "result_player_2": match.result_player_2,
                                         "winner_index": match.winner_index}
                     serialized_match_list.append(serialized_match)
             serialized_round_list.append(serialized_match_list)
-            print("liste de match serialisé:",serialized_match_list)
-            print("liste des tour serialisé:",serialized_round_list)
+            #print("liste de match serialisé:",serialized_match_list)
+            #print("liste des tour serialisé:",serialized_round_list)
             return serialized_round_list
         else:
             return tournament.round_list
@@ -283,8 +282,6 @@ class TournamentsDAO(DAO):
                     player_object_list = self.find_player_object(serialized_match, self.player_dao.players_list)
                     match_list.append(Match(players_object_list=player_object_list,
                                             players_index_list=serialized_match["players_index_list"],
-                                            result_player_1=serialized_match["result_player_1"],
-                                            result_player_2=serialized_match["result_player_2"],
                                             winner_index=serialized_match["winner_index"]))
                     round_list.append(match_list)
             return round_list
@@ -312,8 +309,8 @@ class TournamentsDAO(DAO):
         active_tournaments_list = [tournament for tournament in tournaments_list
                                    if tournament.state in TOURNAMENTS_STATES[0]]
 
-        tournaments_list = [tournament for tournament in tournaments_list
-                            if tournament not in active_tournaments_list]
+        archived_tournaments_list = [tournament for tournament in tournaments_list
+                                     if tournament in TOURNAMENTS_STATES[1:]]
 
-        self.tournaments_list = tournaments_list
+        self.archived_tournaments_list = archived_tournaments_list
         self.active_tournaments_list = active_tournaments_list
