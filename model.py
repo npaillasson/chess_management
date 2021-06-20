@@ -87,9 +87,10 @@ class Tournament:
 
     def __init__(self, tournament_name, tournament_place, tournament_date, end_date, time_controller,
                  number_of_turns, players_index_list, players_object_list, players_points=None,
-                 actual_tour_number=0, state=TOURNAMENTS_STATES[0], round_list=None, tournament_comments=None):
+                 actual_tour_number=0, state=None, round_list=None, tournament_comments=None):
         """Tournament constructor"""
-
+        if state is None:
+            state = TOURNAMENTS_STATES[0]
         if players_points is None:
             players_points = [0, 0, 0, 0, 0, 0, 0, 0]
         if round_list is None:
@@ -129,10 +130,11 @@ class Tournament:
             pass
 
     def __repr__(self):
-        return "Tournoi: {}, lieu: {}, date de debut: {}, date de fin: {}".format(self.tournament_name,
-                                                                                  self.tournament_place,
-                                                                                  self.tournament_date,
-                                                                                  self.end_date)
+        return "Tournoi: {}, lieu: {}, date de debut: {}, date de fin: {}, etat:{}".format(self.tournament_name,
+                                                                                           self.tournament_place,
+                                                                                           self.tournament_date,
+                                                                                           self.end_date,
+                                                                                           self.state)
 
 class DAO(ABC):
     """Abstract DAO Class"""
@@ -227,6 +229,7 @@ class TournamentsDAO(DAO):
                                                    actual_tour_number=serialized_tournament["actual_tour_number"],
                                                    state=serialized_tournament["state"]))
 
+        self.tournaments_list = new_tournaments_list
         self.tournaments_distribution(new_tournaments_list)
 
     def save_dao(self):
@@ -250,9 +253,10 @@ class TournamentsDAO(DAO):
             print(serialized_tournament)
 
             serialized_tournaments_list.append(serialized_tournament)
+        print("tournament_list_after_save", self.tournaments_list)
         self.tournaments_table.truncate()
         self.tournaments_table.insert_multiple(serialized_tournaments_list)
-        self.tournaments_distribution(self.tournaments_list)
+        #self.tournaments_distribution(self.tournaments_list)
 
     def match_serialization(self, tournament):
         """function which serialise match object in round_list"""
@@ -304,13 +308,11 @@ class TournamentsDAO(DAO):
         """Method that divides the tournaments into two lists depending on whether the
         tournament is in progress or not."""
 
-        tournaments_list = tournaments_list
-
         active_tournaments_list = [tournament for tournament in tournaments_list
                                    if tournament.state in TOURNAMENTS_STATES[0]]
 
         archived_tournaments_list = [tournament for tournament in tournaments_list
-                                     if tournament in TOURNAMENTS_STATES[1:]]
+                                     if tournament.state in TOURNAMENTS_STATES[1:]]
 
         self.archived_tournaments_list = archived_tournaments_list
         self.active_tournaments_list = active_tournaments_list

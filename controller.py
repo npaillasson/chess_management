@@ -204,6 +204,12 @@ class Browse:
             return self.main_menu_control()
 
         else:
+            object = object_list[selected_tournament_index]
+            print("j'imprime object list", object_list[selected_tournament_index])
+            object_index = self.tournaments_dao.tournaments_list.index(object)
+            object_from_list = self.tournaments_dao.tournaments_list[object_index]
+            print("j'imprime object from list", object_from_list)
+            print(object == object_from_list)
             return self.tournaments_management(object_list[selected_tournament_index])
 
     def tournaments_management(self, tournament):
@@ -289,7 +295,7 @@ class Browse:
                                                              PROPOSAL_MENU_MESSAGE["abort_tournament"][1],
                                                              index=True)
         if choice == 1:
-            tournament.state = model.TOURNAMENTS_STATES[2]
+            tournament.state = model.TOURNAMENTS_STATES[1]
             self.tournaments_dao.save_dao()
             #self.tournaments_dao.tournaments_distribution(tournaments_list=self.tournaments_dao.tournaments_list)
             return self.main_menu_control()
@@ -345,7 +351,7 @@ class Browse:
         tournament_list_object = []
 
         if all_tournaments:
-            tournament_list = self.tournaments_dao.tournaments_list + self.tournaments_dao.active_tournaments_list
+            tournament_list = self.tournaments_dao.tournaments_list
         else:
             tournament_list = self.tournaments_dao.active_tournaments_list
 
