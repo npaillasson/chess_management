@@ -122,7 +122,6 @@ class Browse:
             choice = self.validation_menu.\
                 printing_correction_menu(players_formatting(player_information))
             if choice == 0:
-                print("OK!")
                 self.add_player_in_dao(player_information)
                 break
             elif choice == 1:
@@ -239,26 +238,41 @@ class Browse:
 
                     player_1 = match.players_object_list[0]
                     player_1_index = tournament.players_list.index(player_1)
+                    player_1_relative_index = None
                     player_2 = match.players_object_list[1]
                     player_2_index = tournament.players_list.index(player_2)
                     player_str_list = [str(player_1), str(player_2), model.DRAW_KEY_WORD]
-                    player_dict = {str(player_1): player_1_index,
-                                   str(player_2): player_2_index,
-                                   model.DRAW_KEY_WORD: model.DRAW_KEY_WORD}
+                    players_index_list = [player_1_index, player_2_index, model.DRAW_INDEX]
+                    # winner is an int number
                     winner = self.validation_menu.printing_proposal_menu(
                         menu.PROPOSAL_MENU_MESSAGE["result_match_request"][0], player_str_list)
+                    print("winner", winner)
+                    #print("players_dict", players_dict)
+                    #print("player_dict[winner]", players_dict[winner])
+                    #print("player_dict[winner]", type(players_dict[winner]))
+                    #print("match.players_object_list[player_dict[winner]]", match.players_dict[winner])
                     choice = self.validation_menu.printing_correction_menu(
-                        menu.match_formatting(player_1, player_2, winner_player=match.players_object_list[winner]))
+                        menu.match_formatting(player_1, player_2,
+                                              winner_player=match.players_object_list[winner]))
 
                     if choice == 0:
-                        match.winner = player_dict[winner]
-                        if match.winner == model.DRAW_KEY_WORD:
+                        match.winner_absolute_index = players_index_list[winner]
+                        match.winner_relative_index = winner
+                        print(type(match))
+                        print(match.players_object_list, match.players_index_list,
+                              match.player_1_information,
+                              match.player_2_information,
+                              match.winner_absolute_index,
+                              match.winner_relative_index)
+                        #print("absolute: ", match.winner_absolute_index)
+                        #print("relative: ", match.winner_relative_index)
+                        if match.winner_absolute_index == model.DRAW_INDEX:
                             tournament.players_points[player_1_index] += model.NULL_POINT
                             tournament.players_points[player_2_index] += model.NULL_POINT
                         else:
-                            tournament.players_point[match.winner] += model.WINNER_POINT
-
-                        self.tours_management(tournament, match_object_list)
+                            tournament.players_points[match.winner_absolute_index] += model.WINNER_POINT
+                            self.tournaments_dao.save_dao()
+                        return self.tours_management(tournament, match_object_list)
                     if choice == 1:
                         continue
                     else:
@@ -269,7 +283,7 @@ class Browse:
         actual_match_list = object_list
         remaining_match = 0
         for match in actual_match_list:
-            if not match.winner_index:
+            if not match.winner_absolute_index:
                 remaining_match += 1
         if remaining_match == 0:
             tournament.actual_tour_number += 1
@@ -365,7 +379,7 @@ class Browse:
         displayed_list = []
         match_list_object = []
         for match in round_list:
-            if not match.winner_index:
+            if not match.winner_absolute_index:
                 displayed_list.append(str(match))
                 match_list_object.append(match)
         displayed_list.append(menu.add_comments)

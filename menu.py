@@ -74,8 +74,8 @@ def tournament_formatting(tournament_information):
 
 def match_formatting(player_1, player_2, winner_player):
 
-    return "{} {}\n{} {}\ngagnant: {}".format(player_1.first_name,
-                                              player_1.last_name,
-                                              player_2.first_name,
-                                              player_2.last_name,
-                                              winner_player)
+    return "GOGGG{} {} contre {} {}\ngagnant: {}".format(player_1.first_name,
+                                                    player_1.last_name,
+                                                    player_2.first_name,
+                                                    player_2.last_name,
+                                                    winner_player)

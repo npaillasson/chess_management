@@ -18,6 +18,8 @@ list_of_ongoing_tournaments = []
 
 DRAW_KEY_WORD = menu.DRAW_MATCH_KEY_WORD
 
+DRAW_INDEX = -1
+
 WINNER_POINT = 1
 
 NULL_POINT = 0.5
@@ -58,19 +60,21 @@ class Player:
 
 class Match:
     """class which represent a match"""
-    def __init__(self, players_object_list, players_index_list, winner_index=None):
+    def __init__(self, players_object_list, players_index_list, winner_absolute_index=None, winner_relative_index=None):
         """Match constructor"""
+
         self.players_object_list = players_object_list
         self.players_index_list = players_index_list
         self.player_1_information = self.players_object_list[0].last_name + self.players_object_list[0].first_name
         self.player_2_information = self.players_object_list[1].last_name + self.players_object_list[1].first_name
-        self.winner_index = winner_index
+        self.winner_absolute_index = winner_absolute_index
+        self.winner_relative_index = winner_relative_index
 
     def __repr__(self):
-        if not self.winner_index:
+        if not self.winner_absolute_index or self.winner_absolute_index == -1:
             return "{} contre {}".format(self.player_1_information, self.player_2_information)
         else:
-            return "Le gagnant est: {}".format(self.players_object_list[self.winner_index])
+            return "Le gagnant est: {}".format(self.players_object_list[self.winner_relative_index])
 
 class Round:
     """class which represent a round (list of 4 matches)"""
@@ -270,11 +274,12 @@ class TournamentsDAO(DAO):
                 for match in tour:
                     print(match)
                     serialized_match = {"players_index_list": match.players_index_list,
-                                        "winner_index": match.winner_index}
+                                        "winner_absolute_index": match.winner_absolute_index,
+                                        "winner_relative_index": match.winner_relative_index}
                     serialized_match_list.append(serialized_match)
             serialized_round_list.append(serialized_match_list)
-            #print("liste de match serialisé:",serialized_match_list)
-            #print("liste des tour serialisé:",serialized_round_list)
+            print("liste de match serialisé:",serialized_match_list)
+            print("liste des tour serialisé:",serialized_round_list)
             return serialized_round_list
         else:
             return tournament.round_list
@@ -289,7 +294,8 @@ class TournamentsDAO(DAO):
                     player_object_list = self.find_player_object(serialized_match, self.player_dao.players_list)
                     match_list.append(Match(players_object_list=player_object_list,
                                             players_index_list=serialized_match["players_index_list"],
-                                            winner_index=serialized_match["winner_index"]))
+                                            winner_absolute_index=serialized_match["winner_absolute_index"],
+                                            winner_relative_index=serialized_match["winner_relative_index"]))
                     round_list.append(match_list)
             return round_list
         else:
