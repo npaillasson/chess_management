@@ -4,6 +4,7 @@
 from operator import attrgetter
 import tinydb
 from abc import ABC
+import menu
 
 DEFAULT_NUMBER_OF_TURNS = 4
 
@@ -14,6 +15,8 @@ DAO_PATH = "data/chess_database.json"
 DAO_OBJECT = tinydb.TinyDB(DAO_PATH)
 
 list_of_ongoing_tournaments = []
+
+DRAW_KEY_WORD = menu.DRAW_MATCH_KEY_WORD
 
 WINNER_POINT = 1
 

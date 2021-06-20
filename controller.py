@@ -26,7 +26,7 @@ INT_CONTROL_EXPRESSION = re.compile(r"^[0-9]+$")
 
 STR_INT_CONTROL_EXPRESSION = re.compile(r"^[A-Za-z0-9 'éèàêöç!.;:,/]+$")
 
-stop_function = "quit"
+stop_function = menu.STOP_FUNCTION_KEY_WORD
 
 # list of adapted data_controllers
 # Field which have to contains only str, no int
@@ -36,9 +36,10 @@ str_int_controller =["tournament_name", "tournament_place", "tournament_comments
 # Field which contains a date
 date_controller = ["date_of_birth", "tournament_date", "end_date"]
 # Field  which contains only int, no str
-int_controller = ["rank", "number_of_turn", "score_request"]
+int_controller = ["rank", "number_of_turn"]
 # Data already checked as proposal list
-no_controller = ["gender", "selected_player", "time_control", "participating_players", "other_date_request"]
+no_controller = ["gender", "selected_player", "time_control", "participating_players", "other_date_request",
+                 "score_request"]
 
 
 class Browse:
@@ -235,33 +236,27 @@ class Browse:
                 match = match_object_list[selected_match_index]
                 print(self.tournaments_dao.active_tournaments_list)
                 while True:
+
                     player_1 = match.players_object_list[0]
                     player_1_index = tournament.players_list.index(player_1)
                     player_2 = match.players_object_list[1]
                     player_2_index = tournament.players_list.index(player_2)
-                    self.sign.printing_sign(player_1)
-                    player_1_score = self.set_menu("score_request")
-                    self.sign.printing_sign(player_2)
-                    player_2_score = self.set_menu("score_request")
-                    choice = self.validation_menu.printing_correction_menu(menu.match_formatting(player_1,
-                                                                                                 player_2,
-                                                                                                 player_1_score,
-                                                                                                 player_2_score))
-                    if choice == 0:
-                        match.result_player_1 = player_1_score
-                        match.result_player_2 = player_2_score
+                    player_str_list = [str(player_1), str(player_2), model.DRAW_KEY_WORD]
+                    player_dict = {str(player_1): player_1_index,
+                                   str(player_2): player_2_index,
+                                   model.DRAW_KEY_WORD: model.DRAW_KEY_WORD}
+                    winner = self.validation_menu.printing_proposal_menu(
+                        menu.PROPOSAL_MENU_MESSAGE["result_match_request"][0], player_str_list)
+                    choice = self.validation_menu.printing_correction_menu(
+                        menu.match_formatting(player_1, player_2, winner_player=match.players_object_list[winner]))
 
-                        tournament.players_points[player_2_index] = player_2_score
-                        if player_1_score == player_2_score:
-                            match.winner_index = "draw"
+                    if choice == 0:
+                        match.winner = player_dict[winner]
+                        if match.winner == model.DRAW_KEY_WORD:
                             tournament.players_points[player_1_index] += model.NULL_POINT
                             tournament.players_points[player_2_index] += model.NULL_POINT
-                        elif player_1_score > player_2_score:
-                            match.winner_index = player_1_index
-                            tournament.players_points[player_1_index] += model.WINNER_POINT
                         else:
-                            match.winner_index = player_2_index
-                            tournament.players_points[player_2_index] += model.Win
+                            tournament.players_point[match.winner] += model.WINNER_POINT
 
                         self.tours_management(tournament, match_object_list)
                     if choice == 1:

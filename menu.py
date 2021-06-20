@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
 # coding: utf-8
 
+DRAW_MATCH_KEY_WORD = "Match nul"
+STOP_FUNCTION_KEY_WORD = "revenir au menu précédent"
 
 # MENUS CHOICES
 # list which contains the choices of the main menu
@@ -17,7 +19,7 @@ FIELD_MESSAGE = {"last_name": ["veuillez saisir le nom du joueur: ", "Nom invali
                  "first_name": ["veuillez saisir le prénom du joueur: ", "Prénom invalide !"],
                  "date_of_birth": ["veuillez saisir la date de naissance du joueur: ", "date invalide !"],
                  "rank": ["veuillez saisir le rang du joueur: ", "rang invalide !"],
-                 "number_of_turn": ["Reglez le nomnbre de tours (4 par défaut) ", "Nombre de tous invalide !"],
+                 "number_of_turn": ["Reglez le nombre de tours (4 par défaut) ", "Nombre de tous invalide !"],
                  "tournament_name": ["Quel est le nom du tournoi ? ", "Nom invalide !"],
                  "tournament_place": ["Ou se déroule le tournoi ? ", "lieu invalide ! "],
                  "tournament_comments": ["Voulez-vous faire un commentaire (facultatif)? "],
@@ -33,7 +35,8 @@ PROPOSAL_MENU_MESSAGE = {"gender": ["Rensseigner le genre du joueur", ["Femme", 
                          "time_control": ["quel est le type de jeu souhaité?", ["Bullet", "Blitz", "Fast chess"]],
                          "set_match": "choisissez le match dont vous souhaitez saisir le score",
                          "abort_tournament": ["souhaitez-vous annuler définitivement le tournoi ?",
-                                               yes_no_menu]}
+                                              yes_no_menu],
+                         "result_match_request": ["quel joueur à gagné le match?"]}
 
 # SIGN MESSAGE
 welcome_message = "Bienvenue dans chess management !"
@@ -69,11 +72,10 @@ def tournament_formatting(tournament_information):
                tournament_information["tournament_comments"])
 
 
-def match_formatting(player_1, player_2, player_1_score, player_2_score):
+def match_formatting(player_1, player_2, winner_player):
 
-    return "{} {} score: {}pts\n{} {} score: {}pts".format(player_1.first_name,
-                                                           player_1.last_name,
-                                                           player_1_score,
-                                                           player_2.first_name,
-                                                           player_2.last_name,
-                                                           player_2_score)
+    return "{} {}\n{} {}\ngagnant: {}".format(player_1.first_name,
+                                              player_1.last_name,
+                                              player_2.first_name,
+                                              player_2.last_name,
+                                              winner_player)
