@@ -120,7 +120,7 @@ class Tournament:
 
     def swiss_system(self):
         """Function used to create all players pair for match"""
-        if self.actual_tour_number == 0:
+        if not self.round_list:
             sorted_players_list = self.players_list
             sorted(sorted_players_list, key=attrgetter("rank"))
             list_match = []
@@ -270,9 +270,12 @@ class TournamentsDAO(DAO):
         serialized_round_list = []
         if tournament.round_list:
             for tour in tournament.round_list:
+                print(type(tour))
+                print(tour)
                 serialized_match_list = []
                 for match in tour:
-                    print(match)
+                    print(match.winner_absolute_index)
+                    print("poulopop",match)
                     serialized_match = {"players_index_list": match.players_index_list,
                                         "winner_absolute_index": match.winner_absolute_index,
                                         "winner_relative_index": match.winner_relative_index}

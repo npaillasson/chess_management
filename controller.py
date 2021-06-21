@@ -214,8 +214,8 @@ class Browse:
 
     def tournaments_management(self, tournament):
 
+        tournament.swiss_system()  # ici on affiche match et donc les joueurs
         self.sign.printing_sign(menu.tour_number, str(tournament.actual_tour_number + 1))
-        tournament.swiss_system() #ici on affiche match et donc les joueurs
         while tournament.actual_tour_number < tournament.number_of_turns + 1:
             displayed_list, match_object_list = self.display_match_list(tournament.round_list
                                                                         [tournament.actual_tour_number])
@@ -278,13 +278,14 @@ class Browse:
                     else:
                         return self.select_tournaments()
 
-    def tours_management(self, tournament, object_list):
+    def tours_management(self, tournament, match_object_list):
 
-        actual_match_list = object_list
+        actual_match_list = match_object_list
         remaining_match = 0
         for match in actual_match_list:
             if not match.winner_absolute_index:
                 remaining_match += 1
+                print(remaining_match)
         if remaining_match == 0:
             tournament.actual_tour_number += 1
             if tournament.actual_tour_number == tournament.number_of_turns:
@@ -295,7 +296,6 @@ class Browse:
                 return self.main_menu_control()
         else:
             self.tournaments_dao.save_dao()
-            #self.tournaments_dao.load_dao()
             return self.tournaments_management(tournament)
 
     def aborted_tournament(self, tournament):
@@ -379,7 +379,7 @@ class Browse:
         displayed_list = []
         match_list_object = []
         for match in round_list:
-            if not match.winner_absolute_index:
+            if match.winner_absolute_index is None:
                 displayed_list.append(str(match))
                 match_list_object.append(match)
         displayed_list.append(menu.add_comments)
