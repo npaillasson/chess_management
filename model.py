@@ -98,7 +98,7 @@ class Tournament:
 
     def __init__(self, tournament_name, tournament_place, tournament_date, end_date, time_controller,
                  number_of_turns, players_index_list, players_object_list, players_points=None,
-                 actual_tour_number=0, state=None, round_list=None, tournament_comments=None):
+                 actual_tour_number=1, state=None, round_list=None, tournament_comments=None):
         """Tournament constructor"""
         if state is None:
             state = TOURNAMENTS_STATES[0]
@@ -127,7 +127,10 @@ class Tournament:
         list_match = []
         index = 0
         sorted_players_list = self.players_list
-        if self.actual_tour_number == 0:
+        print("liste: ", self.round_list)
+        print("taille round list: ", len(self.round_list))
+        print("nombre de tour actuel: ", self.actual_tour_number)
+        if self.actual_tour_number == 1:
             if not self.round_list:
                 sorted_players_list = sorted(sorted_players_list, key=attrgetter("rank"), reverse=True)
                 while index != NUMBER_OF_MATCH_PER_TOUR:
@@ -139,22 +142,24 @@ class Tournament:
                     index += 1
                 print(sorted_players_list)
                 self.round_list.append(list_match)
-        else:
-            if len(self.round_list) < self.actual_tour_number:
-                sorted_list = []
-                for player_index in self.players_index_list:
-                    sorted_list.append((player_index, self.players_points[player_index],
-                                        str(self.players_list[player_index].rank)))
-                print(sorted_list)
-                sorted_list = sorted(sorted_list, key=itemgetter(1, 2), reverse=True)
-                while index != NUMBER_OF_PLAYER:
-                    player_1_index = sorted_list[index][0]
-                    player_2_index = sorted_list[index + 1][0]
-                    player_1 = self.players_list(player_1_index)
-                    player_2 = self.players_list(player_2_index)
-                    list_match.append(Match([player_1, player_2], [player_1_index, player_2_index]))
-                    index += 2
-                self.round_list.append(list_match)
+        if len(self.round_list) < self.actual_tour_number:
+            sorted_list = []
+            for player_index in self.players_index_list:
+                sorted_list.append((player_index, self.players_points[player_index],
+                                    str(self.players_list[player_index].rank)))
+            print(sorted_list)
+            sorted_list = sorted(sorted_list, key=itemgetter(1, 2), reverse=True)
+            print(sorted_list)
+            while index != NUMBER_OF_PLAYER:
+                player_1_index = sorted_list[index][0]
+                player_2_index = sorted_list[index + 1][0]
+                player_1 = self.players_list[player_1_index]
+                player_2 = self.players_list[player_2_index]
+                list_match.append(Match([player_1, player_2], [player_1_index, player_2_index]))
+                index += 2
+            print(self.round_list)
+            self.round_list.append(list_match)
+            print(self.round_list)
 
 
 
@@ -302,7 +307,7 @@ class TournamentsDAO(DAO):
                                         "winner_absolute_index": match.winner_absolute_index,
                                         "winner_relative_index": match.winner_relative_index}
                     serialized_match_list.append(serialized_match)
-            serialized_round_list.append(serialized_match_list)
+                serialized_round_list.append(serialized_match_list)
             print("liste de match serialisé:",serialized_match_list)
             print("liste des tour serialisé:",serialized_round_list)
             return serialized_round_list
@@ -321,7 +326,7 @@ class TournamentsDAO(DAO):
                                             players_index_list=serialized_match["players_index_list"],
                                             winner_absolute_index=serialized_match["winner_absolute_index"],
                                             winner_relative_index=serialized_match["winner_relative_index"]))
-                    round_list.append(match_list)
+                round_list.append(match_list)
             return round_list
         else:
             return serialized_round_list

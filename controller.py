@@ -215,10 +215,10 @@ class Browse:
     def tournaments_management(self, tournament):
 
         tournament.swiss_system()  # ici on affiche match et donc les joueurs
-        self.sign.printing_sign(menu.tour_number, str(tournament.actual_tour_number + 1))
-        while tournament.actual_tour_number < tournament.number_of_turns + 1:
+        self.sign.printing_sign(menu.tour_number, str(tournament.actual_tour_number))
+        while tournament.actual_tour_number < tournament.number_of_turns:
             displayed_list, match_object_list = self.display_match_list(tournament.round_list
-                                                                        [tournament.actual_tour_number])
+                                                                        [tournament.actual_tour_number - 1])
             selected_match_index = self.validation_menu.printing_proposal_menu(PROPOSAL_MENU_MESSAGE["set_match"],
                                                                                validation_choices=displayed_list)
 
@@ -284,13 +284,14 @@ class Browse:
         for match in actual_match_list:
             if not match.winner_absolute_index:
                 remaining_match += 1
-                print(remaining_match)
+        print("remain: ", remaining_match)
         if remaining_match == 0:
             tournament.actual_tour_number += 1
             if tournament.actual_tour_number == tournament.number_of_turns:
-                tournament.state = model.TOURNAMENTS_STATES[1]
+                tournament.state = model.TOURNAMENTS_STATES[2]
                 self.tournaments_dao.save_dao()
                 self.sign.printing_sign(menu.end_of_tournament)
+                self.tournaments_dao.tournaments_distribution(self.tournaments_dao.tournaments_list)
                 #ajout de la fonction qui distribue les points du tournoi au solde de point de chaque joueur
                 return self.main_menu_control()
             else:
@@ -306,7 +307,7 @@ class Browse:
         if choice == 1:
             tournament.state = model.TOURNAMENTS_STATES[1]
             self.tournaments_dao.save_dao()
-            #self.tournaments_dao.tournaments_distribution(tournaments_list=self.tournaments_dao.tournaments_list)
+            self.tournaments_dao.tournaments_distribution(self.tournaments_dao.tournaments_list)
             return self.main_menu_control()
         else:
             return self.tournaments_management(tournament)
