@@ -58,6 +58,7 @@ tour_number = "Tour numéro"
 add_comments = "ajouter un commentaire au tournoi"
 abort_tournament = "Abandonner le tournoi"
 end_of_tournament = "Le tournoi est désormais terminé !"
+quit_report = "\n(Pour revenir au menu principal tapez 'q')\n\n"
 
 
 def players_formatting(player_information):
@@ -82,6 +83,17 @@ def tournament_formatting(tournament_information):
                tournament_information["players_object_list"],
                tournament_information["time_control"],
                tournament_information["tournament_comments"])
+
+def tournament_repport_formatting(tournament):
+    return "Nom: {}, lieu: {} \nDate de début: {}, Date de fin: {}\nNombre de tours: {}," \
+           " Type de match: {}\nEtat du tournoi: {}\nCommentaire(s): {}\n".format(tournament.tournament_name,
+                                                                                  tournament.tournament_place,
+                                                                                  tournament.tournament_date,
+                                                                                  tournament.end_date,
+                                                                                  tournament.number_of_turns,
+                                                                                  tournament.time_controller,
+                                                                                  tournament.state,
+                                                                                  tournament.tournament_comments)
 
 
 def match_formatting(player_1, player_2, winner_player):

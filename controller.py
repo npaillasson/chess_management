@@ -6,6 +6,8 @@ import time
 import sys
 import re
 
+from operator import attrgetter, itemgetter
+
 import model
 from view import ChoiceMenu, FieldMenu, Sign, ValidationMenu
 from menu import MAIN_MENU_CHOICES, FIELD_MESSAGE, CORRECTION_MENU_CHOICES,\
@@ -90,7 +92,7 @@ class Browse:
         elif choice == 3:
             return self.select_tournaments()
         elif choice == 4:
-            pass
+            return self.report_main_menu()
         else:
             self.tournaments_dao.save_dao()
             sys.exit(0)
@@ -520,6 +522,50 @@ class Browse:
 
         return self.main_menu_control()
 
+    def report_main_menu(self):
+        choice = self.choice_menu.printing_menu_index(menu.REPORTS_MAIN_MENU)
+        if choice == 0:
+            return self.report_sub_menu()
+        elif choice == 1:
+            return self.printing_tournament_report()
+        else:
+            return self.main_menu_control()
+
+    def report_sub_menu(self):
+        choice = self.choice_menu.printing_menu_index(menu.REPORTS_SUB_MENU)
+        if choice == 0:
+            return self.printing_players_report(self.players_dao.players_list)
+        elif choice == 1:
+            return self.printing_players_report(self.players_dao.players_list, alpha=False)
+        else:
+            return self.main_menu_control()
+
+    def printing_players_report(self, players_list, alpha=True):
+
+        if alpha:
+            sorted_list = sorted(players_list, key=attrgetter("last_name", "first_name"))
+        else:
+            sorted_list = sorted(players_list, key=attrgetter("rank", "last_name", "first_name"), reverse=True)
+        for index, player in enumerate(sorted_list):
+            sorted_list[index] = str(player)
+        display_chain = menu.quit_report + "\n".join(sorted_list) + "\n:"
+
+        while True:
+            quit_report = self.field_menu.printing_field(display_chain)
+            if quit_report == stop_function:
+                break
+        return self.report_main_menu()
+
+    def printing_tournament_report(self):
+        display_list = []
+        for tournament in self.tournaments_dao.tournaments_list:
+            display_list.append(menu.tournament_repport_formatting(tournament))
+            display_chain = menu.quit_report + "\n".join(display_list) + "\n:"
+        while True:
+            quit_report = self.field_menu.printing_field(display_chain)
+            if quit_report == stop_function:
+                break
+        return self.report_main_menu()
 
 def program_init():
     """Function that checks if the database already exists"""
