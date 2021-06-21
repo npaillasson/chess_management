@@ -69,8 +69,10 @@ class Match:
 
         self.players_object_list = players_object_list
         self.players_index_list = players_index_list
-        self.player_1_information = self.players_object_list[0].last_name + self.players_object_list[0].first_name
-        self.player_2_information = self.players_object_list[1].last_name + self.players_object_list[1].first_name
+        self.player_1_information =\
+            self.players_object_list[0].last_name + " " + self.players_object_list[0].first_name
+        self.player_2_information = \
+            self.players_object_list[1].last_name + " " + self.players_object_list[1].first_name
         self.winner_absolute_index = winner_absolute_index
         self.winner_relative_index = winner_relative_index
 
@@ -79,18 +81,6 @@ class Match:
             return "{} contre {}".format(self.player_1_information, self.player_2_information)
         else:
             return "Le gagnant est: {}".format(self.players_object_list[self.winner_relative_index])
-
-class Round:
-    """class which represent a round (list of 4 matches)"""
-
-    def __init__(self, first_match, second_match, third_match, fourth_match):
-        self.first_match = first_match
-        self.second_match = second_match
-        self.third_match = third_match
-        self.fourth_match = fourth_match
-
-    def __repr__(self):
-        return "[{}, {}, {}, {}]".format(self.first_match, self.second_match, self.fourth_match, self.fourth_match)
 
 
 class Tournament:
@@ -171,6 +161,7 @@ class Tournament:
                                                                                            self.tournament_date,
                                                                                            self.end_date,
                                                                                            self.state)
+
 
 class DAO(ABC):
     """Abstract DAO Class"""
@@ -292,7 +283,6 @@ class TournamentsDAO(DAO):
         print("tournament_list_after_save", self.tournaments_list)
         self.tournaments_table.truncate()
         self.tournaments_table.insert_multiple(serialized_tournaments_list)
-        #self.tournaments_distribution(self.tournaments_list)
 
     def match_serialization(self, tournament):
         """function which serialise match object in round_list"""

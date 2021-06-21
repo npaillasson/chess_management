@@ -2,14 +2,21 @@
 # coding: utf-8
 
 DRAW_MATCH_KEY_WORD = "Match nul"
+
 STOP_FUNCTION_KEY_WORD = "quit"
+
 TOURNAMENT_STATE = ["En cours", "abandonné", "Terminé"]
 
 # MENUS CHOICES
 # list which contains the choices of the main menu
 MAIN_MENU_CHOICES = ["Créer un joueur", "Créer un tournoi", "Modifier le score d'un joueur",
-                     "Gérer un tournoi en cours", "Générer des rapports", "chargé une base de donnée",
+                     "Gérer un tournoi en cours", "Générer des rapports",
                      "Quitter le logiciel"]
+
+REPORTS_MAIN_MENU = ["Liste des joueurs", "Liste des tournois", "Liste des joueurs d'un tournoi",
+                     "Liste des tours d'un tournoi", "Liste de tous les matchs d'un tournoi", STOP_FUNCTION_KEY_WORD]
+
+REPORTS_SUB_MENU = ["Trié par ordre alphabétique", "Trié par classement", STOP_FUNCTION_KEY_WORD]
 
 # list which contains the choices of the "correction menu"
 CORRECTION_MENU_CHOICES = ["Valider !", "Corriger", "Annuler"]
@@ -38,7 +45,10 @@ PROPOSAL_MENU_MESSAGE = {"gender": ["Rensseigner le genre du joueur", ["Femme", 
                          "set_match": "choisissez le match dont vous souhaitez saisir le score",
                          "abort_tournament": ["souhaitez-vous annuler définitivement le tournoi ?",
                                               yes_no_menu],
-                         "result_match_request": ["quel joueur à gagné le match?"]}
+                         "result_match_request": ["quel joueur à gagné le match?"],
+                         "load_new_database": ["Placer une nouvelle base de données dans le fichier '/data'\n"
+                                                  "à la racine du logiciel puis cliquer sur 'valider' pour\n"
+                                                  " charger la nouvelle base de données", ["Annuler", "Valider"]]}
 
 # SIGN MESSAGE
 welcome_message = "Bienvenue dans chess management !"
@@ -76,8 +86,8 @@ def tournament_formatting(tournament_information):
 
 def match_formatting(player_1, player_2, winner_player):
 
-    return "GOGGG{} {} contre {} {}\ngagnant: {}".format(player_1.first_name,
-                                                    player_1.last_name,
-                                                    player_2.first_name,
+    return "{} {} contre {} {}\ngagnant: {}".format(player_1.last_name,
+                                                    player_1.first_name,
                                                     player_2.last_name,
+                                                    player_2.first_name,
                                                     winner_player)

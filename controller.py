@@ -37,7 +37,7 @@ date_controller = ["date_of_birth", "tournament_date", "end_date"]
 int_controller = ["rank", "number_of_turn"]
 # Data already checked as proposal list
 no_controller = ["gender", "selected_player", "time_control", "participating_players", "other_date_request",
-                 "score_request"]
+                 "score_request", "load_new_database"]
 
 
 class Browse:
@@ -89,7 +89,9 @@ class Browse:
             return self.score_edit_controller()
         elif choice == 3:
             return self.select_tournaments()
-        elif choice == 6:
+        elif choice == 4:
+            pass
+        else:
             self.tournaments_dao.save_dao()
             sys.exit(0)
 
@@ -238,19 +240,20 @@ class Browse:
                     player_1_index = tournament.players_list.index(player_1)
                     player_2 = match.players_object_list[1]
                     player_2_index = tournament.players_list.index(player_2)
-                    player_str_list = [str(player_1), str(player_2), model.DRAW_KEY_WORD]
+                    players_str_list = [str(player_1), str(player_2), model.DRAW_KEY_WORD]
                     players_index_list = [player_1_index, player_2_index, model.DRAW_INDEX]
                     # winner is an int number
                     winner = self.validation_menu.printing_proposal_menu(
-                        menu.PROPOSAL_MENU_MESSAGE["result_match_request"][0], player_str_list)
+                        menu.PROPOSAL_MENU_MESSAGE["result_match_request"][0], players_str_list)
                     print("winner", winner)
                     #print("players_dict", players_dict)
                     #print("player_dict[winner]", players_dict[winner])
                     #print("player_dict[winner]", type(players_dict[winner]))
                     #print("match.players_object_list[player_dict[winner]]", match.players_dict[winner])
+
                     choice = self.validation_menu.printing_correction_menu(
                         menu.match_formatting(player_1, player_2,
-                                              winner_player=match.players_object_list[winner]))
+                                              winner_player=players_str_list[winner]))
 
                     if choice == 0:
                         match.winner_absolute_index = players_index_list[winner]
@@ -266,6 +269,7 @@ class Browse:
                         if match.winner_absolute_index == model.DRAW_INDEX:
                             tournament.players_points[player_1_index] += model.NULL_POINT
                             tournament.players_points[player_2_index] += model.NULL_POINT
+                            self.tournaments_dao.save_dao()
                         else:
                             tournament.players_points[match.winner_absolute_index] += model.WINNER_POINT
                             self.tournaments_dao.save_dao()
@@ -280,17 +284,17 @@ class Browse:
         actual_match_list = match_object_list
         remaining_match = 0
         for match in actual_match_list:
-            if not match.winner_absolute_index:
+            if match.winner_absolute_index is None:
                 remaining_match += 1
         print("remain: ", remaining_match)
         if remaining_match == 0:
             tournament.actual_tour_number += 1
             if tournament.actual_tour_number > tournament.number_of_turns:
                 tournament.state = model.TOURNAMENTS_STATES[2]
-                self.tournaments_dao.save_dao()
                 self.sign.printing_sign(menu.end_of_tournament)
+                self.add_tournament_points_to_player(tournament)
+                self.tournaments_dao.save_dao()
                 self.tournaments_dao.tournaments_distribution(self.tournaments_dao.tournaments_list)
-                #ajout de la fonction qui distribue les points du tournoi au solde de point de chaque joueur
                 return self.main_menu_control()
             else:
                 return self.tournaments_management(tournament)
@@ -312,8 +316,8 @@ class Browse:
 
     def add_tournament_points_to_player(self, tournament):
         """function which add tournament point to the players at the end of the tournament"""
-
-
+        for index, player in enumerate(tournament.players_list):
+            player.rank += tournament.players_points[index]
 
     def add_players_in_tournament(self):
         """method which allows to add 8 players in a tournament"""
@@ -390,10 +394,22 @@ class Browse:
         new_comment = self.set_menu("tournament_comments")
         if new_comment == stop_function:
             return self.tournaments_management(tournament)
-        tournament.tournament_comments = tournament.tournament_comments + "\n{}".format(new_comment)
+        tournament.tournament_comments = tournament.tournament_comments + "|{}|".format(new_comment)
         self.tournaments_dao.save_dao()
         self.tournaments_dao.load_dao()
         return self.tournaments_management(tournament)
+
+    def load_new_database(self):
+        """Method that allows to load a new database"""
+        choice = self.set_menu("load_new_database", index=True)
+        if choice == 0:
+            return self.main_menu_control()
+        else:
+            self.players_dao.dao = model.DAO_OBJECT
+            self.tournaments_dao.dao = model.DAO_OBJECT
+            self.players_dao.load_dao()
+            self.tournaments_dao.load_dao()
+            return self.main_menu_control()
 
     def data_controller(self, data_name, empty_field_permitted=False):
         """Method which control user's inputs conformity"""
