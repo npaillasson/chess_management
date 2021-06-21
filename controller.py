@@ -3,16 +3,14 @@
 
 import os
 import time
-import signal
 import sys
-from datetime import datetime
 import re
 
 import model
 from view import ChoiceMenu, FieldMenu, Sign, ValidationMenu
 from menu import MAIN_MENU_CHOICES, FIELD_MESSAGE, CORRECTION_MENU_CHOICES,\
     PROPOSAL_MENU_MESSAGE, players_formatting, tournament_formatting
-from model import Player, PlayersDAO, Tournament, TournamentsDAO, Match, DAO_PATH, DEFAULT_NUMBER_OF_TURNS
+from model import Player, PlayersDAO, Tournament, TournamentsDAO, DAO_PATH, DEFAULT_NUMBER_OF_TURNS
 import menu
 
 # regex that allows to check if the field contains only lettres or space or "-".
@@ -24,7 +22,7 @@ DATE_FORMAT = "%d/%m/%Y"
 # regex that allows to check if a field is only composed by number
 INT_CONTROL_EXPRESSION = re.compile(r"^[0-9]+$")
 
-STR_INT_CONTROL_EXPRESSION = re.compile(r"^[A-Za-z0-9 'éèàêöç!.;:,/]+$")
+STR_INT_CONTROL_EXPRESSION = re.compile(r"^[A-Za-z0-9 'éèàêöç!.;:,/_-]+$")
 
 stop_function = menu.STOP_FUNCTION_KEY_WORD
 
@@ -216,7 +214,7 @@ class Browse:
 
         tournament.swiss_system()  # ici on affiche match et donc les joueurs
         self.sign.printing_sign(menu.tour_number, str(tournament.actual_tour_number))
-        while tournament.actual_tour_number < tournament.number_of_turns:
+        while tournament.actual_tour_number <= tournament.number_of_turns:
             displayed_list, match_object_list = self.display_match_list(tournament.round_list
                                                                         [tournament.actual_tour_number - 1])
             selected_match_index = self.validation_menu.printing_proposal_menu(PROPOSAL_MENU_MESSAGE["set_match"],
@@ -287,7 +285,7 @@ class Browse:
         print("remain: ", remaining_match)
         if remaining_match == 0:
             tournament.actual_tour_number += 1
-            if tournament.actual_tour_number == tournament.number_of_turns:
+            if tournament.actual_tour_number > tournament.number_of_turns:
                 tournament.state = model.TOURNAMENTS_STATES[2]
                 self.tournaments_dao.save_dao()
                 self.sign.printing_sign(menu.end_of_tournament)

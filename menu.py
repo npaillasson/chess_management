@@ -2,7 +2,7 @@
 # coding: utf-8
 
 DRAW_MATCH_KEY_WORD = "Match nul"
-STOP_FUNCTION_KEY_WORD = "revenir au menu précédent"
+STOP_FUNCTION_KEY_WORD = "quit"
 TOURNAMENT_STATE = ["En cours", "abandonné", "Terminé"]
 
 # MENUS CHOICES

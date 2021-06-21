@@ -98,8 +98,10 @@ class Tournament:
 
     def __init__(self, tournament_name, tournament_place, tournament_date, end_date, time_controller,
                  number_of_turns, players_index_list, players_object_list, players_points=None,
-                 actual_tour_number=1, state=None, round_list=None, tournament_comments=None):
+                 actual_tour_number=None, state=None, round_list=None, tournament_comments=None):
         """Tournament constructor"""
+        if actual_tour_number is None:
+            actual_tour_number = 1
         if state is None:
             state = TOURNAMENTS_STATES[0]
         if players_points is None:
