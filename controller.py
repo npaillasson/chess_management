@@ -238,7 +238,6 @@ class Browse:
 
                     player_1 = match.players_object_list[0]
                     player_1_index = tournament.players_list.index(player_1)
-                    player_1_relative_index = None
                     player_2 = match.players_object_list[1]
                     player_2_index = tournament.players_list.index(player_2)
                     player_str_list = [str(player_1), str(player_2), model.DRAW_KEY_WORD]
@@ -294,8 +293,9 @@ class Browse:
                 self.sign.printing_sign(menu.end_of_tournament)
                 #ajout de la fonction qui distribue les points du tournoi au solde de point de chaque joueur
                 return self.main_menu_control()
+            else:
+                return self.tournaments_management(tournament)
         else:
-            self.tournaments_dao.save_dao()
             return self.tournaments_management(tournament)
 
     def aborted_tournament(self, tournament):
@@ -415,7 +415,7 @@ class Browse:
                     return data
             elif data_name in int_controller:
                 if self.int_control_expression.match(data) is not None:
-                    return data
+                    return int(data)
                 elif not data and empty_field_permitted:
                     return ""
                 else:

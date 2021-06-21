@@ -1,14 +1,18 @@
 #! /usr/bin/env python3
 # coding: utf-8
 
-from operator import attrgetter
+from operator import attrgetter, itemgetter
 import tinydb
 from abc import ABC
 import menu
 
 DEFAULT_NUMBER_OF_TURNS = 4
 
-TOURNAMENTS_STATES = ["In progress", "aborted", "Completed"]
+NUMBER_OF_MATCH_PER_TOUR = 4
+
+NUMBER_OF_PLAYER = 8
+
+TOURNAMENTS_STATES = menu.TOURNAMENT_STATE
 
 DAO_PATH = "data/chess_database.json"
 
@@ -120,21 +124,39 @@ class Tournament:
 
     def swiss_system(self):
         """Function used to create all players pair for match"""
-        if not self.round_list:
-            sorted_players_list = self.players_list
-            sorted(sorted_players_list, key=attrgetter("rank"))
-            list_match = []
-            index = 0
-            while index != 4:
-                player_1 = sorted_players_list[index]
-                player_1_index = self.players_list.index(player_1)
-                player_2 = sorted_players_list[index + 4]
-                player_2_index = self.players_list.index(player_2)
-                list_match.append(Match([player_1, player_2], [player_1_index, player_2_index]))
-                index += 1
-            self.round_list.append(list_match)
+        list_match = []
+        index = 0
+        sorted_players_list = self.players_list
+        if self.actual_tour_number == 0:
+            if not self.round_list:
+                sorted_players_list = sorted(sorted_players_list, key=attrgetter("rank"), reverse=True)
+                while index != NUMBER_OF_MATCH_PER_TOUR:
+                    player_1 = sorted_players_list[index]
+                    player_1_index = self.players_list.index(player_1)
+                    player_2 = sorted_players_list[index + 4]
+                    player_2_index = self.players_list.index(player_2)
+                    list_match.append(Match([player_1, player_2], [player_1_index, player_2_index]))
+                    index += 1
+                print(sorted_players_list)
+                self.round_list.append(list_match)
         else:
-            pass
+            if len(self.round_list) < self.actual_tour_number:
+                sorted_list = []
+                for player_index in self.players_index_list:
+                    sorted_list.append((player_index, self.players_points[player_index],
+                                        str(self.players_list[player_index].rank)))
+                print(sorted_list)
+                sorted_list = sorted(sorted_list, key=itemgetter(1, 2), reverse=True)
+                while index != NUMBER_OF_PLAYER:
+                    player_1_index = sorted_list[index][0]
+                    player_2_index = sorted_list[index + 1][0]
+                    player_1 = self.players_list(player_1_index)
+                    player_2 = self.players_list(player_2_index)
+                    list_match.append(Match([player_1, player_2], [player_1_index, player_2_index]))
+                    index += 2
+                self.round_list.append(list_match)
+
+
 
     def __repr__(self):
         return "Tournoi: {}, lieu: {}, date de debut: {}, date de fin: {}, etat:{}".format(self.tournament_name,

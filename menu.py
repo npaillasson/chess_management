@@ -3,6 +3,7 @@
 
 DRAW_MATCH_KEY_WORD = "Match nul"
 STOP_FUNCTION_KEY_WORD = "revenir au menu précédent"
+TOURNAMENT_STATE = ["En cours", "abandonné", "Terminé"]
 
 # MENUS CHOICES
 # list which contains the choices of the main menu
