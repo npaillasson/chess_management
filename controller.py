@@ -1,18 +1,19 @@
 #! /usr/bin/env python3
 # coding: utf-8
 
-import os
+"""Controller module"""
+
 import time
 import sys
 import re
 
-from operator import attrgetter, itemgetter
+from operator import attrgetter
 
 import model
 from view import ChoiceMenu, FieldMenu, Sign, ValidationMenu
 from menu import MAIN_MENU_CHOICES, FIELD_MESSAGE, CORRECTION_MENU_CHOICES,\
     PROPOSAL_MENU_MESSAGE, players_formatting, tournament_formatting
-from model import Player, PlayersDAO, Tournament, TournamentsDAO, DAO_PATH, DEFAULT_NUMBER_OF_TURNS
+from model import Player, PlayersDAO, Tournament, TournamentsDAO, DEFAULT_NUMBER_OF_TURNS
 import menu
 
 # regex that allows to check if the field contains only lettres or space or "-".
@@ -32,7 +33,7 @@ stop_function = menu.STOP_FUNCTION_KEY_WORD
 # Field which have to contains only str, no int
 str_controller = ["last_name", "first_name"]
 # Field that can contain str and int, can not be empty.
-str_int_controller =["tournament_name", "tournament_place", "tournament_comments"]
+str_int_controller = ["tournament_name", "tournament_place", "tournament_comments"]
 # Field which contains a date
 date_controller = ["date_of_birth", "tournament_date", "end_date"]
 # Field  which contains only int, no str
@@ -193,7 +194,6 @@ class Browse:
 
     def select_tournaments(self):
 
-        #self.tournaments_dao.tournaments_distribution(self.tournaments_dao.tournaments_list)
         displayed_list, object_list = self.display_tournament_list(object_list=True, active_only=True)
         selected_tournament_index = self.choice_menu.printing_menu_index(displayed_list)
 
@@ -202,14 +202,11 @@ class Browse:
             return self.main_menu_control()
 
         else:
-            tournament_object = object_list[selected_tournament_index]
-            object_index = self.tournaments_dao.tournaments_list.index(tournament_object)
-            object_from_list = self.tournaments_dao.tournaments_list[object_index]
             return self.tournaments_management(object_list[selected_tournament_index])
 
     def tournaments_management(self, tournament):
 
-        tournament.swiss_system()  # ici on affiche match et donc les joueurs
+        tournament.swiss_system()
         self.sign.printing_sign(menu.tour_number, str(tournament.actual_tour_number))
         while tournament.actual_tour_number <= tournament.number_of_turns:
             displayed_list, match_object_list = self.display_match_list(tournament.round_list
@@ -226,7 +223,7 @@ class Browse:
             elif selected_match_index == len(displayed_list) - 3:
                 return self.add_comments_to_tournament(tournament)
 
-            else: # ici on affiche une premiere page d'entrée pour le joueur 1 puis une seconde pour le joueur 2
+            else:
                 match = match_object_list[selected_match_index]
                 while True:
 
@@ -295,7 +292,8 @@ class Browse:
         else:
             return self.tournaments_management(tournament)
 
-    def add_tournament_points_to_player(self, tournament):
+    @staticmethod
+    def add_tournament_points_to_player(tournament):
         """function which add tournament point to the players at the end of the tournament"""
         for index, player in enumerate(tournament.players_list):
             player.rank += tournament.players_points[index]
@@ -323,7 +321,8 @@ class Browse:
 
         return participating_players_index_list, participating_players_object_list
 
-    def display_player_list(self, player_list, object_list=False):
+    @staticmethod
+    def display_player_list(player_list, object_list=False):
         displayed_list = []
         players_list_object = []
         for player in player_list:
@@ -576,25 +575,17 @@ class Browse:
                 return self.printing_tours_report(tournament)
 
 
-def program_init():
-    """Function that checks if the database already exists"""
+def launch_program():
 
-    if not os.path.exists("data/"):
-        os.mkdir("data")
-        return False
-    else:
-        return os.path.exists(DAO_PATH)
+    browser = Browse(main_menu_choice=MAIN_MENU_CHOICES,
+                     correction_menu_choice=CORRECTION_MENU_CHOICES,
+                     str_control_expression=STR_CONTROL_EXPRESSION,
+                     str_int_control_expression=STR_INT_CONTROL_EXPRESSION,
+                     date_control_expression=DATE_FORMAT,
+                     int_control_expression=INT_CONTROL_EXPRESSION,
+                     players_dao=PlayersDAO,
+                     tournaments_dao=TournamentsDAO)
 
-
-browser = Browse(main_menu_choice=MAIN_MENU_CHOICES,
-                 correction_menu_choice=CORRECTION_MENU_CHOICES,
-                 str_control_expression=STR_CONTROL_EXPRESSION,
-                 str_int_control_expression=STR_INT_CONTROL_EXPRESSION,
-                 date_control_expression=DATE_FORMAT,
-                 int_control_expression=INT_CONTROL_EXPRESSION,
-                 players_dao=PlayersDAO,
-                 tournaments_dao=TournamentsDAO)
-
-browser.players_dao.load_dao()
-browser.tournaments_dao.load_dao()
-browser.main_menu_control()
+    browser.players_dao.load_dao()
+    browser.tournaments_dao.load_dao()
+    browser.main_menu_control()

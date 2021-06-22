@@ -1,11 +1,16 @@
 #! /usr/bin/env python3
 # coding: utf-8
 
-import os
-import sys
-import signal
-from controller import Browse
+"""main module"""
+
+from controller import launch_program
 
 
-def program_closing(signal, frame):
-    sys.exit(0)
+def main():
+    """main function to launch the program"""
+
+    launch_program()
+
+
+if __name__ == "__main__":
+    main()

@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
 # coding: utf-8
 
+"""menu module, contains all menu choices and messages"""
+
 DRAW_MATCH_KEY_WORD = "Match nul"
 
 STOP_FUNCTION_KEY_WORD = "quit"
@@ -47,8 +49,8 @@ PROPOSAL_MENU_MESSAGE = {"gender": ["Rensseigner le genre du joueur", ["Femme", 
                                               yes_no_menu],
                          "result_match_request": ["quel joueur à gagné le match?"],
                          "load_new_database": ["Placer une nouvelle base de données dans le fichier '/data'\n"
-                                                  "à la racine du logiciel puis cliquer sur 'valider' pour\n"
-                                                  " charger la nouvelle base de données", ["Annuler", "Valider"]]}
+                                               "à la racine du logiciel puis cliquer sur 'valider' pour\n"
+                                               " charger la nouvelle base de données", ["Annuler", "Valider"]]}
 
 # SIGN MESSAGE
 welcome_message = "Bienvenue dans chess management !"
@@ -62,7 +64,7 @@ quit_report = "\n(Pour revenir au menu principal tapez 'quit')\n\n"
 
 
 def players_formatting(player_information):
-    """Function which take a dict with players information and format it"""
+    """Function which takes a dict with players information as argument, and returns a formatted string"""
     return "\nNom : {}\nPrénom : {} \nDate de naissance : {}\nGenre : {}\nRang : {}\n".\
         format(player_information["last_name"],
                player_information["first_name"],
@@ -70,8 +72,9 @@ def players_formatting(player_information):
                player_information["gender"],
                player_information["rank"])
 
+
 def tournament_formatting(tournament_information):
-    """Function which take a dict with players information and format it"""
+    """Function which takes a dict with tournament information as argument, and returns a formatted string"""
 
     return "\nNom : {}\nlieu : {} \nDate de début : {}\nDate de fin : {}\nNombre de tours : {}\n" \
            "joueurs participants : {}\n type de match : {}\n commentaire : {}".\
@@ -86,6 +89,7 @@ def tournament_formatting(tournament_information):
 
 
 def match_formatting(player_1, player_2, winner_player):
+    """Function which returns a formatted string with various information about the match"""
 
     return "{} {} contre {} {}\ngagnant: {}".format(player_1.last_name,
                                                     player_1.first_name,
@@ -95,6 +99,9 @@ def match_formatting(player_1, player_2, winner_player):
 
 
 def tournament_report_formatting(tournament):
+    """Function that takes a dict with tournament information as argument, and returns a formatted
+    string used to generate reports."""
+
     return "Nom: {}, lieu: {} \nDate de début: {}, Date de fin: {}\nNombre de tours: {}," \
            " Type de match: {}\nEtat du tournoi: {}\nCommentaire(s): {}\n".format(tournament.tournament_name,
                                                                                   tournament.tournament_place,
@@ -107,6 +114,9 @@ def tournament_report_formatting(tournament):
 
 
 def tour_report_formatting(tour, index):
+    """Function that takes a dict with tour information as argument, and returns a formatted
+        string used to generate reports."""
+
     return "Tour n°{}\n____\n{}\n____\n{}\n____\n{}\n____\n{}\n____\n".format(index,
                                                                               tour[0],
                                                                               tour[1],

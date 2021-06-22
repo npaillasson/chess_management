@@ -1,6 +1,9 @@
 #! /usr/bin/env python3
 # coding: utf-8
 
+"""model module, contains the next class: Player, Match, Tournament, DAO, Player_DAO, Tournament_DAO"""
+
+import os
 from operator import attrgetter, itemgetter
 import tinydb
 from abc import ABC
@@ -13,6 +16,9 @@ NUMBER_OF_MATCH_PER_TOUR = 4
 NUMBER_OF_PLAYER = 8
 
 TOURNAMENTS_STATES = menu.TOURNAMENT_STATE
+
+if not os.path.exists("data/"):
+    os.mkdir("data/")
 
 DAO_PATH = "data/chess_database.json"
 
@@ -27,6 +33,7 @@ DRAW_INDEX = -1
 WINNER_POINT = 1
 
 NULL_POINT = 0.5
+
 
 class Player:
     """class which represent a player"""
@@ -59,7 +66,9 @@ class Player:
         return "{} {} né(e) le {} : {} pts".format(self.last_name, self.first_name, self.date_of_birth, self.rank)
 
     def __repr__(self):
+        """Function that defines how a player object is represented"""
         return str(self)
+
 
 class Match:
     """class which represent a match"""
@@ -77,11 +86,13 @@ class Match:
         self.winner_relative_index = winner_relative_index
 
     def display_match_for_choice(self):
+        """Function that defines how a Match object is displayed in the tournament management menu"""
         chain = "{} contre {}".format(self.player_1_information,
                                       self.player_2_information)
         return chain
 
     def __repr__(self):
+        """Function that defines how a Match object is represented"""
         if not self.winner_absolute_index:
             return "{} |contre| {}\nRésultats non rensseignés".format(self.player_1_information,
                                                                       self.player_2_information)
@@ -101,6 +112,7 @@ class Tournament:
                  number_of_turns, players_index_list, players_object_list, players_points=None,
                  actual_tour_number=None, state=None, round_list=None, tournament_comments=None):
         """Tournament constructor"""
+
         if actual_tour_number is None:
             actual_tour_number = 1
         if state is None:
@@ -156,9 +168,8 @@ class Tournament:
                 index += 2
             self.round_list.append(list_match)
 
-
-
     def __repr__(self):
+        """Function that defines how a tournament object is represented"""
         return "Tournoi: {}, lieu: {}, date de debut: {}, date de fin: {}, etat:{}".format(self.tournament_name,
                                                                                            self.tournament_place,
                                                                                            self.tournament_date,
@@ -178,14 +189,14 @@ class PlayersDAO(DAO):
     """Class which represent the players database of the club"""
 
     def __init__(self):
-        """DataBase constructor"""
+        """PlayersDAO constructor"""
 
         DAO.__init__(self)
         self.players_list = []
         self.players_table = self.dao.table("players")
 
     def load_dao(self):
-        """Function which load players data from the database"""
+        """Function which loads players data from the dao"""
 
         new_players_list = []
         serialized_players_list = self.players_table.all()
@@ -199,7 +210,7 @@ class PlayersDAO(DAO):
         self.players_list = new_players_list
 
     def save_dao(self):
-        """Function which save the data into the database"""
+        """Function which saves the data into the dao"""
 
         serialized_players_list = []
         for player in self.players_list:
@@ -227,7 +238,7 @@ class TournamentsDAO(DAO):
     """Class which represent the tournaments database of the club"""
 
     def __init__(self, player_dao):
-        """DataBase constructor"""
+        """Dao constructor"""
 
         DAO.__init__(self)
         self.tournaments_list = []
@@ -237,7 +248,7 @@ class TournamentsDAO(DAO):
         self.player_dao = player_dao
 
     def load_dao(self):
-        """Function which load tournaments data from the database"""
+        """Method which loads tournaments data from the dao"""
 
         new_tournaments_list = []
         serialized_tournaments_list = self.tournaments_table.all()
@@ -263,7 +274,7 @@ class TournamentsDAO(DAO):
         self.tournaments_distribution(new_tournaments_list)
 
     def save_dao(self):
-        """Function which save the data into the database"""
+        """Method which saves the data into the dao"""
 
         serialized_tournaments_list = []
         for tournament in self.tournaments_list:
@@ -285,8 +296,9 @@ class TournamentsDAO(DAO):
         self.tournaments_table.truncate()
         self.tournaments_table.insert_multiple(serialized_tournaments_list)
 
-    def match_serialization(self, tournament):
-        """function which serialise match object in round_list"""
+    @staticmethod
+    def match_serialization(tournament):
+        """Method which serializes match object in round_list"""
         serialized_round_list = []
         if tournament.round_list:
             for tour in tournament.round_list:
@@ -302,7 +314,8 @@ class TournamentsDAO(DAO):
             return tournament.round_list
 
     def match_deserialization(self, serialized_round_list):
-        """function which deserialize match"""
+        """function which deserializes match from the dao"""
+
         round_list = []
         if serialized_round_list:
             for tour in serialized_round_list:
@@ -320,6 +333,7 @@ class TournamentsDAO(DAO):
 
     @staticmethod
     def find_player_object(serialized_tournament_or_match, players_list):
+        """Method which returns a list containing player object find from a player index list """
 
         player_object_list = []
         index_list = serialized_tournament_or_match["players_index_list"]

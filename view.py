@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
 # coding: utf-8
 
+"""view module, contains the next classes, ChoiceMenu, FieldMenu, Sign, ValidationMenu"""
+
 from simple_term_menu import TerminalMenu
 
 
@@ -9,13 +11,14 @@ class ChoiceMenu:
 
     @staticmethod
     def printing_menu_index(choices_list):
-        """Function which display the menu"""
+        """Function which display the menu and return the index of the user's choice"""
         menu = TerminalMenu(choices_list)
         choice_index = menu.show()
         return choice_index
 
     @staticmethod
     def printing_menu_value(choices_list):
+        """Function which display the menu and return the value of the user's choice"""
         menu = TerminalMenu(choices_list)
         choice_index = menu.show()
         choice_value = choices_list[choice_index]
@@ -26,13 +29,9 @@ class ChoiceMenu:
 class FieldMenu:
     """Field menu class"""
 
-    def __init__(self):
-        """FieldMenu constructor"""
-        pass
-
     @staticmethod
     def printing_field(message):
-        """Method which print the field"""
+        """Method to print a message and an input field to allow the user to enter information"""
         while True:
             try:
                 value = input(message)
@@ -41,17 +40,13 @@ class FieldMenu:
                 continue
             return value.strip()
 
-# class that allows to display a message
+
 class Sign:
     """Sign class"""
 
-    def __init__(self):
-        """Sign class constructor"""
-        pass
-
     @staticmethod
     def printing_sign(*message):
-        """method which print the sign"""
+        """displays a message to the user"""
         print(*message)
 
 
@@ -77,7 +72,7 @@ class ValidationMenu(ChoiceMenu):
         return choice
 
     def printing_proposal_menu(self, message, validation_choices, index=True):
-        """function which displays a proposal menu. it is a choice menu with a contextual message. return a value.
+        """function which displays a proposal menu. It's a choice menu with a contextual message. return a value.
         ex: please select the gender of the player:
         -Man
         -Woman
@@ -91,7 +86,3 @@ class ValidationMenu(ChoiceMenu):
         else:
             choice = self.printing_menu_value(validation_choices)
         return choice
-
-
-
-
