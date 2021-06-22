@@ -7,10 +7,6 @@ from simple_term_menu import TerminalMenu
 class ChoiceMenu:
     """Choice menu class"""
 
-    def __init__(self):
-        """Menu Constructor"""
-        pass
-
     @staticmethod
     def printing_menu_index(choices_list):
         """Function which display the menu"""

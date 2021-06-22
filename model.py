@@ -28,7 +28,6 @@ WINNER_POINT = 1
 
 NULL_POINT = 0.5
 
-
 class Player:
     """class which represent a player"""
 
@@ -131,9 +130,6 @@ class Tournament:
         list_match = []
         index = 0
         sorted_players_list = self.players_list
-        print("liste: ", self.round_list)
-        print("taille round list: ", len(self.round_list))
-        print("nombre de tour actuel: ", self.actual_tour_number)
         if self.actual_tour_number == 1:
             if not self.round_list:
                 sorted_players_list = sorted(sorted_players_list, key=attrgetter("rank"), reverse=True)
@@ -144,16 +140,13 @@ class Tournament:
                     player_2_index = self.players_list.index(player_2)
                     list_match.append(Match([player_1, player_2], [player_1_index, player_2_index]))
                     index += 1
-                print(sorted_players_list)
                 self.round_list.append(list_match)
         if len(self.round_list) < self.actual_tour_number:
             sorted_list = []
             for player_index in self.players_index_list:
                 sorted_list.append((player_index, self.players_points[player_index],
                                     str(self.players_list[player_index].rank)))
-            print(sorted_list)
             sorted_list = sorted(sorted_list, key=itemgetter(1, 2), reverse=True)
-            print(sorted_list)
             while index != NUMBER_OF_PLAYER:
                 player_1_index = sorted_list[index][0]
                 player_2_index = sorted_list[index + 1][0]
@@ -161,9 +154,7 @@ class Tournament:
                 player_2 = self.players_list[player_2_index]
                 list_match.append(Match([player_1, player_2], [player_1_index, player_2_index]))
                 index += 2
-            print(self.round_list)
             self.round_list.append(list_match)
-            print(self.round_list)
 
 
 
@@ -289,10 +280,8 @@ class TournamentsDAO(DAO):
                                      "tournament_comments": tournament.tournament_comments,
                                      "actual_tour_number": tournament.actual_tour_number,
                                      "state": tournament.state}
-            print(serialized_tournament)
 
             serialized_tournaments_list.append(serialized_tournament)
-        print("tournament_list_after_save", self.tournaments_list)
         self.tournaments_table.truncate()
         self.tournaments_table.insert_multiple(serialized_tournaments_list)
 
@@ -301,19 +290,13 @@ class TournamentsDAO(DAO):
         serialized_round_list = []
         if tournament.round_list:
             for tour in tournament.round_list:
-                print(type(tour))
-                print(tour)
                 serialized_match_list = []
                 for match in tour:
-                    print(match.winner_absolute_index)
-                    print("poulopop",match)
                     serialized_match = {"players_index_list": match.players_index_list,
                                         "winner_absolute_index": match.winner_absolute_index,
                                         "winner_relative_index": match.winner_relative_index}
                     serialized_match_list.append(serialized_match)
                 serialized_round_list.append(serialized_match_list)
-            print("liste de match serialisé:",serialized_match_list)
-            print("liste des tour serialisé:",serialized_round_list)
             return serialized_round_list
         else:
             return tournament.round_list

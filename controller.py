@@ -76,9 +76,6 @@ class Browse:
 
     def main_menu_control(self):
         """main menu controller function"""
-        print("active tournament list :", self.tournaments_dao.active_tournaments_list)
-        print("archived tournament list :", self.tournaments_dao.archived_tournaments_list)
-        print("tournament list :", self.tournaments_dao.tournaments_list)
         choice = self.choice_menu.printing_menu_index(self.main_menu_choice)
         if choice == 0:  # launch the players creation menu
             return self.player_creator_control()
@@ -168,7 +165,6 @@ class Browse:
 
             choice = self.validation_menu.printing_correction_menu(tournament_formatting(tournament_information))
             if choice == 0:
-                print("OK")
                 self.add_tournament_in_dao(tournament_information)
                 self.tournaments_dao.tournaments_distribution(self.tournaments_dao.tournaments_list)
                 break
@@ -207,11 +203,8 @@ class Browse:
 
         else:
             tournament_object = object_list[selected_tournament_index]
-            print("j'imprime object list", object_list[selected_tournament_index])
             object_index = self.tournaments_dao.tournaments_list.index(tournament_object)
             object_from_list = self.tournaments_dao.tournaments_list[object_index]
-            print("j'imprime object from list", object_from_list)
-            print(tournament_object == object_from_list)
             return self.tournaments_management(object_list[selected_tournament_index])
 
     def tournaments_management(self, tournament):
@@ -235,7 +228,6 @@ class Browse:
 
             else: # ici on affiche une premiere page d'entrée pour le joueur 1 puis une seconde pour le joueur 2
                 match = match_object_list[selected_match_index]
-                print(self.tournaments_dao.active_tournaments_list)
                 while True:
 
                     player_1 = match.players_object_list[0]
@@ -247,11 +239,6 @@ class Browse:
                     # winner is an int number
                     winner = self.validation_menu.printing_proposal_menu(
                         menu.PROPOSAL_MENU_MESSAGE["result_match_request"][0], players_str_list)
-                    print("winner", winner)
-                    #print("players_dict", players_dict)
-                    #print("player_dict[winner]", players_dict[winner])
-                    #print("player_dict[winner]", type(players_dict[winner]))
-                    #print("match.players_object_list[player_dict[winner]]", match.players_dict[winner])
 
                     choice = self.validation_menu.printing_correction_menu(
                         menu.match_formatting(player_1, player_2,
@@ -260,14 +247,7 @@ class Browse:
                     if choice == 0:
                         match.winner_absolute_index = players_index_list[winner]
                         match.winner_relative_index = winner
-                        print(type(match))
-                        print(match.players_object_list, match.players_index_list,
-                              match.player_1_information,
-                              match.player_2_information,
-                              match.winner_absolute_index,
-                              match.winner_relative_index)
-                        #print("absolute: ", match.winner_absolute_index)
-                        #print("relative: ", match.winner_relative_index)
+
                         if match.winner_absolute_index == model.DRAW_INDEX:
                             tournament.players_points[player_1_index] += model.NULL_POINT
                             tournament.players_points[player_2_index] += model.NULL_POINT
@@ -288,7 +268,6 @@ class Browse:
         for match in actual_match_list:
             if match.winner_absolute_index is None:
                 remaining_match += 1
-        print("remain: ", remaining_match)
         if remaining_match == 0:
             tournament.actual_tour_number += 1
             if tournament.actual_tour_number > tournament.number_of_turns:
@@ -390,7 +369,6 @@ class Browse:
         displayed_list.append(menu.add_comments)
         displayed_list.append(menu.abort_tournament)
         displayed_list.append(stop_function)
-        print("j'affiche !!", displayed_list)
         return displayed_list, match_list_object
 
     def add_comments_to_tournament(self, tournament):
@@ -598,7 +576,6 @@ class Browse:
                 return self.printing_tours_report(tournament)
 
 
-
 def program_init():
     """Function that checks if the database already exists"""
 
@@ -607,8 +584,6 @@ def program_init():
         return False
     else:
         return os.path.exists(DAO_PATH)
-
-
 
 
 browser = Browse(main_menu_choice=MAIN_MENU_CHOICES,
@@ -623,5 +598,3 @@ browser = Browse(main_menu_choice=MAIN_MENU_CHOICES,
 browser.players_dao.load_dao()
 browser.tournaments_dao.load_dao()
 browser.main_menu_control()
-
-#browser.players_dao.players_list
