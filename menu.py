@@ -14,7 +14,7 @@ MAIN_MENU_CHOICES = ["Créer un joueur", "Créer un tournoi", "Modifier le score
                      "Quitter le logiciel"]
 
 REPORTS_MAIN_MENU = ["Liste des joueurs", "Liste des tournois", "Liste des joueurs d'un tournoi",
-                     "Liste des tours d'un tournoi", "Liste de tous les matchs d'un tournoi", STOP_FUNCTION_KEY_WORD]
+                     "Liste des tours et matchs d'un tournoi", STOP_FUNCTION_KEY_WORD]
 
 REPORTS_SUB_MENU = ["Trié par ordre alphabétique", "Trié par classement", STOP_FUNCTION_KEY_WORD]
 
@@ -58,7 +58,7 @@ tour_number = "Tour numéro"
 add_comments = "ajouter un commentaire au tournoi"
 abort_tournament = "Abandonner le tournoi"
 end_of_tournament = "Le tournoi est désormais terminé !"
-quit_report = "\n(Pour revenir au menu principal tapez 'q')\n\n"
+quit_report = "\n(Pour revenir au menu principal tapez 'quit')\n\n"
 
 
 def players_formatting(player_information):
@@ -84,7 +84,17 @@ def tournament_formatting(tournament_information):
                tournament_information["time_control"],
                tournament_information["tournament_comments"])
 
-def tournament_repport_formatting(tournament):
+
+def match_formatting(player_1, player_2, winner_player):
+
+    return "{} {} contre {} {}\ngagnant: {}".format(player_1.last_name,
+                                                    player_1.first_name,
+                                                    player_2.last_name,
+                                                    player_2.first_name,
+                                                    winner_player)
+
+
+def tournament_report_formatting(tournament):
     return "Nom: {}, lieu: {} \nDate de début: {}, Date de fin: {}\nNombre de tours: {}," \
            " Type de match: {}\nEtat du tournoi: {}\nCommentaire(s): {}\n".format(tournament.tournament_name,
                                                                                   tournament.tournament_place,
@@ -96,10 +106,9 @@ def tournament_repport_formatting(tournament):
                                                                                   tournament.tournament_comments)
 
 
-def match_formatting(player_1, player_2, winner_player):
-
-    return "{} {} contre {} {}\ngagnant: {}".format(player_1.last_name,
-                                                    player_1.first_name,
-                                                    player_2.last_name,
-                                                    player_2.first_name,
-                                                    winner_player)
+def tour_report_formatting(tour, index):
+    return "Tour n°{}\n____\n{}\n____\n{}\n____\n{}\n____\n{}\n____\n".format(index,
+                                                                              tour[0],
+                                                                              tour[1],
+                                                                              tour[2],
+                                                                              tour[3])

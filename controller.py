@@ -206,12 +206,12 @@ class Browse:
             return self.main_menu_control()
 
         else:
-            object = object_list[selected_tournament_index]
+            tournament_object = object_list[selected_tournament_index]
             print("j'imprime object list", object_list[selected_tournament_index])
-            object_index = self.tournaments_dao.tournaments_list.index(object)
+            object_index = self.tournaments_dao.tournaments_list.index(tournament_object)
             object_from_list = self.tournaments_dao.tournaments_list[object_index]
             print("j'imprime object from list", object_from_list)
-            print(object == object_from_list)
+            print(tournament_object == object_from_list)
             return self.tournaments_management(object_list[selected_tournament_index])
 
     def tournaments_management(self, tournament):
@@ -385,11 +385,12 @@ class Browse:
         match_list_object = []
         for match in round_list:
             if match.winner_absolute_index is None:
-                displayed_list.append(str(match))
+                displayed_list.append(match.display_match_for_choice())
                 match_list_object.append(match)
         displayed_list.append(menu.add_comments)
         displayed_list.append(menu.abort_tournament)
         displayed_list.append(stop_function)
+        print("j'affiche !!", displayed_list)
         return displayed_list, match_list_object
 
     def add_comments_to_tournament(self, tournament):
@@ -525,18 +526,22 @@ class Browse:
     def report_main_menu(self):
         choice = self.choice_menu.printing_menu_index(menu.REPORTS_MAIN_MENU)
         if choice == 0:
-            return self.report_sub_menu()
+            return self.report_sub_menu(self.players_dao.players_list)
         elif choice == 1:
             return self.printing_tournament_report()
+        elif choice == 2:
+            return self.select_tournament_for_report(players_report=True)
+        elif choice == 3:
+            return self.select_tournament_for_report(tours_report=True)
         else:
             return self.main_menu_control()
 
-    def report_sub_menu(self):
+    def report_sub_menu(self, players_list):
         choice = self.choice_menu.printing_menu_index(menu.REPORTS_SUB_MENU)
         if choice == 0:
-            return self.printing_players_report(self.players_dao.players_list)
+            return self.printing_players_report(players_list)
         elif choice == 1:
-            return self.printing_players_report(self.players_dao.players_list, alpha=False)
+            return self.printing_players_report(players_list, alpha=False)
         else:
             return self.main_menu_control()
 
@@ -558,14 +563,41 @@ class Browse:
 
     def printing_tournament_report(self):
         display_list = []
+        display_chain = ""
         for tournament in self.tournaments_dao.tournaments_list:
-            display_list.append(menu.tournament_repport_formatting(tournament))
+            display_list.append(menu.tournament_report_formatting(tournament))
             display_chain = menu.quit_report + "\n".join(display_list) + "\n:"
         while True:
             quit_report = self.field_menu.printing_field(display_chain)
             if quit_report == stop_function:
                 break
         return self.report_main_menu()
+
+    def printing_tours_report(self, tournament):
+        display_list = []
+        display_chain = ""
+        for index, tour in enumerate(tournament.round_list):
+            display_list.append(menu.tour_report_formatting(tour, index + 1))
+            display_chain = menu.quit_report + "\n".join(display_list) + "\n:"
+        while True:
+            quit_report = self.field_menu.printing_field(display_chain)
+            if quit_report == stop_function:
+                break
+        return self.report_main_menu()
+
+    def select_tournament_for_report(self, players_report=False, tours_report=False):
+        display_list, tournament_objects_list = self.display_tournament_list(object_list=True)
+        tournament_index = self.choice_menu.printing_menu_index(display_list)
+        if tournament_index == len(display_list) - 1:
+            return self.report_main_menu()
+        else:
+            tournament = tournament_objects_list[tournament_index]
+            if players_report:
+                return self.report_sub_menu(tournament.players_list)
+            elif tours_report:
+                return self.printing_tours_report(tournament)
+
+
 
 def program_init():
     """Function that checks if the database already exists"""

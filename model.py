@@ -64,7 +64,8 @@ class Player:
 
 class Match:
     """class which represent a match"""
-    def __init__(self, players_object_list, players_index_list, winner_absolute_index=None, winner_relative_index=None):
+    def __init__(self, players_object_list, players_index_list, winner_absolute_index=None,
+                 winner_relative_index=None):
         """Match constructor"""
 
         self.players_object_list = players_object_list
@@ -76,11 +77,22 @@ class Match:
         self.winner_absolute_index = winner_absolute_index
         self.winner_relative_index = winner_relative_index
 
+    def display_match_for_choice(self):
+        chain = "{} contre {}".format(self.player_1_information,
+                                      self.player_2_information)
+        return chain
+
     def __repr__(self):
-        if not self.winner_absolute_index or self.winner_absolute_index == -1:
-            return "{} contre {}".format(self.player_1_information, self.player_2_information)
+        if not self.winner_absolute_index:
+            return "{} |contre| {}\nRésultats non rensseignés".format(self.player_1_information,
+                                                                      self.player_2_information)
+        if self.winner_absolute_index == -1:
+            return "{} |contre| {}\nMatch nul".format(self.player_1_information,
+                                                      self.player_2_information)
         else:
-            return "Le gagnant est: {}".format(self.players_object_list[self.winner_relative_index])
+            return "{} |contre| {}\nLe gagnant est: {}".format(self.player_1_information,
+                                                               self.player_2_information,
+                                                               self.players_object_list[self.winner_relative_index])
 
 
 class Tournament:
