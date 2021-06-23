@@ -56,11 +56,15 @@ PROPOSAL_MENU_MESSAGE = {"gender": ["Rensseigner le genre du joueur", ["Femme", 
 welcome_message = "Bienvenue dans chess management !"
 player_already_exists = "Le joueur exist déjà !"
 not_enough_players = "Vous avez moins de 8 joueurs dans la base de données !"
-tour_number = "Tour numéro"
 add_comments = "ajouter un commentaire au tournoi"
 abort_tournament = "Abandonner le tournoi"
 end_of_tournament = "Le tournoi est désormais terminé !"
 quit_report = "\n(Pour revenir au menu principal tapez 'quit')\n\n"
+
+
+def actual_turn_formating(tournament):
+    """stop"""
+    return "Round numéro: {}/{}".format(str(tournament.actual_tour_number), str(tournament.number_of_turns))
 
 
 def players_formatting(player_information):

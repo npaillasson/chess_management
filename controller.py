@@ -54,6 +54,7 @@ class Browse:
                  int_control_expression,
                  players_dao,
                  tournaments_dao):
+        """Browse constructor"""
 
         # menus choice
         self.main_menu_choice = main_menu_choice
@@ -132,6 +133,7 @@ class Browse:
 
     def tournament_creator_control(self):
         """method which control the user input in the player creation menu"""
+
         while True:
             tournament_information = {}
             tournament_name = self.set_menu("tournament_name")
@@ -177,6 +179,7 @@ class Browse:
 
     def score_edit_controller(self):
         """method which control the user input in the menu for editing player's scores"""
+
         displayed_list = self.display_player_list(self.players_dao.players_list)
         selected_player_index = self.choice_menu.printing_menu_index(displayed_list)
 
@@ -193,6 +196,7 @@ class Browse:
             return self.main_menu_control()
 
     def select_tournaments(self):
+        """Method to select an active tournament before manage it"""
 
         displayed_list, object_list = self.display_tournament_list(object_list=True, active_only=True)
         selected_tournament_index = self.choice_menu.printing_menu_index(displayed_list)
@@ -205,12 +209,13 @@ class Browse:
             return self.tournaments_management(object_list[selected_tournament_index])
 
     def tournaments_management(self, tournament):
+        """Method that allows to manage the progress of a tournament and enter the results of a match"""
 
         tournament.swiss_system()
-        self.sign.printing_sign(menu.tour_number, str(tournament.actual_tour_number))
+        self.sign.printing_sign(menu.actual_turn_formating(tournament))
         while tournament.actual_tour_number <= tournament.number_of_turns:
-            displayed_list, match_object_list = self.display_match_list(tournament.round_list
-                                                                        [tournament.actual_tour_number - 1])
+            displayed_list, match_object_list = self.display_matches_list(tournament.round_list
+                                                                          [tournament.actual_tour_number - 1])
             selected_match_index = self.validation_menu.printing_proposal_menu(PROPOSAL_MENU_MESSAGE["set_match"],
                                                                                validation_choices=displayed_list)
 
@@ -259,6 +264,7 @@ class Browse:
                         return self.select_tournaments()
 
     def tours_management(self, tournament, match_object_list):
+        """method to manage the progress of a round and move to the next round if necessary"""
 
         actual_match_list = match_object_list
         remaining_match = 0
@@ -323,6 +329,7 @@ class Browse:
 
     @staticmethod
     def display_player_list(player_list, object_list=False):
+        """Method to display players list"""
         displayed_list = []
         players_list_object = []
         for player in player_list:
@@ -335,6 +342,7 @@ class Browse:
             return displayed_list
 
     def display_tournament_list(self, object_list=False, all_tournaments=True, active_only=False):
+        """Method to display tournaments list"""
 
         if active_only:
             all_tournaments = False
@@ -357,7 +365,8 @@ class Browse:
             return displayed_list
 
     @staticmethod
-    def display_match_list(round_list):
+    def display_matches_list(round_list):
+        """Method to display matches list"""
 
         displayed_list = []
         match_list_object = []
@@ -371,6 +380,8 @@ class Browse:
         return displayed_list, match_list_object
 
     def add_comments_to_tournament(self, tournament):
+        """Method to add a comment into the tournament"""
+
         new_comment = self.set_menu("tournament_comments")
         if new_comment == stop_function:
             return self.tournaments_management(tournament)
@@ -381,6 +392,7 @@ class Browse:
 
     def load_new_database(self):
         """Method that allows to load a new database"""
+
         choice = self.set_menu("load_new_database", index=True)
         if choice == 0:
             return self.main_menu_control()
@@ -501,6 +513,8 @@ class Browse:
         return self.main_menu_control()
 
     def report_main_menu(self):
+        """Method that manages the reports main menu"""
+
         choice = self.choice_menu.printing_menu_index(menu.REPORTS_MAIN_MENU)
         if choice == 0:
             return self.report_sub_menu(self.players_dao.players_list)
@@ -514,6 +528,8 @@ class Browse:
             return self.main_menu_control()
 
     def report_sub_menu(self, players_list):
+        """Method that manages the reports sub menu"""
+
         choice = self.choice_menu.printing_menu_index(menu.REPORTS_SUB_MENU)
         if choice == 0:
             return self.printing_players_report(players_list)
@@ -523,6 +539,7 @@ class Browse:
             return self.main_menu_control()
 
     def printing_players_report(self, players_list, alpha=True):
+        """Method that display players reports"""
 
         if alpha:
             sorted_list = sorted(players_list, key=attrgetter("last_name", "first_name"))
@@ -539,6 +556,8 @@ class Browse:
         return self.report_main_menu()
 
     def printing_tournament_report(self):
+        """Method that display tournaments reports"""
+
         display_list = []
         display_chain = ""
         for tournament in self.tournaments_dao.tournaments_list:
@@ -551,6 +570,8 @@ class Browse:
         return self.report_main_menu()
 
     def printing_tours_report(self, tournament):
+        """Method that display tours reports"""
+
         display_list = []
         display_chain = ""
         for index, tour in enumerate(tournament.round_list):
@@ -563,6 +584,7 @@ class Browse:
         return self.report_main_menu()
 
     def select_tournament_for_report(self, players_report=False, tours_report=False):
+        """Method that manage tournaments selection before display reports"""
         display_list, tournament_objects_list = self.display_tournament_list(object_list=True)
         tournament_index = self.choice_menu.printing_menu_index(display_list)
         if tournament_index == len(display_list) - 1:
@@ -576,6 +598,7 @@ class Browse:
 
 
 def launch_program():
+    """function that launch the application"""
 
     browser = Browse(main_menu_choice=MAIN_MENU_CHOICES,
                      correction_menu_choice=CORRECTION_MENU_CHOICES,
