@@ -7,7 +7,11 @@ import os
 from operator import attrgetter, itemgetter
 import tinydb
 from abc import ABC
+
+import controller
 import menu
+import time
+import datetime
 
 DEFAULT_NUMBER_OF_TURNS = 4
 
@@ -33,6 +37,8 @@ DRAW_INDEX = -1
 WINNER_POINT = 1
 
 NULL_POINT = 0.5
+
+MATCH_DATE_FORMAT = "le {} à %H:%M".format(controller.DATE_FORMAT)
 
 
 class Player:
@@ -73,8 +79,10 @@ class Player:
 class Match:
     """class which represent a match"""
     def __init__(self, players_object_list, players_index_list, winner_absolute_index=None,
-                 winner_relative_index=None):
+                 winner_relative_index=None, start_time=None, end_time=None):
         """Match constructor"""
+        if not start_time:
+            self.start_time = time.strftime(MATCH_DATE_FORMAT)
 
         self.players_object_list = players_object_list
         self.players_index_list = players_index_list
@@ -84,6 +92,7 @@ class Match:
             self.players_object_list[1].last_name + " " + self.players_object_list[1].first_name
         self.winner_absolute_index = winner_absolute_index
         self.winner_relative_index = winner_relative_index
+        self.end_time = end_time
 
     def display_match_for_choice(self):
         """Function that defines how a Match object is displayed in the tournament management menu"""
@@ -94,15 +103,25 @@ class Match:
     def __repr__(self):
         """Function that defines how a Match object is represented"""
         if not self.winner_absolute_index:
-            return "{} |contre| {}\nRésultats non rensseignés".format(self.player_1_information,
-                                                                      self.player_2_information)
+            return "{} |contre| {}\nRésultats non rensseignés\nMatch Commencé {}.".format(self.player_1_information,
+                                                                                          self.player_2_information,
+                                                                                          self.start_time)
         if self.winner_absolute_index == -1:
-            return "{} |contre| {}\nMatch nul".format(self.player_1_information,
-                                                      self.player_2_information)
+            return "{} |contre| {}\nMatch nul\nMatch Commencé {}, Terminé {}.".format(self.player_1_information,
+                                                                                      self.player_2_information,
+                                                                                      self.start_time,
+                                                                                      self.end_time)
         else:
-            return "{} |contre| {}\nLe gagnant est: {}".format(self.player_1_information,
-                                                               self.player_2_information,
-                                                               self.players_object_list[self.winner_relative_index])
+            return "{} |contre| {}\nLe gagnant est: {}\nMatch Commencé {}, Terminé {}.".\
+                format(self.player_1_information,
+                       self.player_2_information,
+                       self.players_object_list[self.winner_relative_index],
+                       self.start_time,
+                       self.end_time)
+
+    def match_date_time(self):
+        """Method that records the date and time of the start of the match."""
+        time.strftime('')
 
 
 class Tournament:
@@ -306,7 +325,9 @@ class TournamentsDAO(DAO):
                 for match in tour:
                     serialized_match = {"players_index_list": match.players_index_list,
                                         "winner_absolute_index": match.winner_absolute_index,
-                                        "winner_relative_index": match.winner_relative_index}
+                                        "winner_relative_index": match.winner_relative_index,
+                                        "start_time": match.start_date,
+                                        "end_time": match.end_time}
                     serialized_match_list.append(serialized_match)
                 serialized_round_list.append(serialized_match_list)
             return serialized_round_list
@@ -325,7 +346,9 @@ class TournamentsDAO(DAO):
                     match_list.append(Match(players_object_list=player_object_list,
                                             players_index_list=serialized_match["players_index_list"],
                                             winner_absolute_index=serialized_match["winner_absolute_index"],
-                                            winner_relative_index=serialized_match["winner_relative_index"]))
+                                            winner_relative_index=serialized_match["winner_relative_index"],
+                                            start_time=serialized_match["start_time"],
+                                            end_time=serialized_match["end_time"]))
                 round_list.append(match_list)
             return round_list
         else:
