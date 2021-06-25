@@ -16,9 +16,12 @@ MAIN_MENU_CHOICES = ["Créer un joueur", "Créer un tournoi", "Modifier le score
                      "Quitter le logiciel"]
 
 REPORTS_MAIN_MENU = ["Liste des joueurs", "Liste des tournois", "Liste des joueurs d'un tournoi",
-                     "Liste des tours et matchs d'un tournoi", STOP_FUNCTION_KEY_WORD]
+                     "Liste des tours et matches d'un tournoi", STOP_FUNCTION_KEY_WORD]
 
-REPORTS_SUB_MENU = ["Trié par ordre alphabétique", "Trié par classement", STOP_FUNCTION_KEY_WORD]
+REPORTS_SUB_MENU_PLAYER = ["Trier par ordre alphabétique", "Trier par classement", STOP_FUNCTION_KEY_WORD]
+
+REPORTS_SUB_MENU_TOURNAMENT = ["Trier par ordre alphabétique", "Trier par classement",
+                               "Afficher le classement du tournoi", STOP_FUNCTION_KEY_WORD]
 
 # list which contains the choices of the "correction menu"
 CORRECTION_MENU_CHOICES = ["Valider !", "Corriger", "Annuler"]
@@ -30,24 +33,24 @@ FIELD_MESSAGE = {"last_name": ["veuillez saisir le nom du joueur: ", "Nom invali
                  "first_name": ["veuillez saisir le prénom du joueur: ", "Prénom invalide !"],
                  "date_of_birth": ["veuillez saisir la date de naissance du joueur: ", "date invalide !"],
                  "rank": ["veuillez saisir le rang du joueur: ", "rang invalide !"],
-                 "number_of_turn": ["Reglez le nombre de tours (4 par défaut) ", "Nombre de tous invalide !"],
+                 "number_of_turn": ["Réglez le nombre de tours (4 par défaut) ", "Nombre de tours invalide !"],
                  "tournament_name": ["Quel est le nom du tournoi ? ", "Nom invalide !"],
-                 "tournament_place": ["Ou se déroule le tournoi ? ", "lieu invalide ! "],
+                 "tournament_place": ["Où se déroule le tournoi ? ", "lieu invalide ! "],
                  "tournament_comments": ["Voulez-vous faire un commentaire (facultatif)? "],
-                 "tournament_date": ["A quelle date le tournoi commence t'il ? ", "date invalide !"],
-                 "end_date": ["A quelle date le tournoi fini t'il ? ", "date invalide !"],
+                 "tournament_date": ["A quelle date le tournoi commence-t-il ? ", "date invalide !"],
+                 "end_date": ["A quelle date le tournoi finit-il ? ", "date invalide !"],
                  "score_request": ["Veuillez saisir le score du joueur: ", "score invalide ! "]}
 
 # VALIDATION MENUS MESSAGE (key = data name, value = list which contains all message about data)
 # {"name" : [message, [choice 1, choice 2]], ...]
 PROPOSAL_MENU_MESSAGE = {"gender": ["Rensseigner le genre du joueur", ["Femme", "Homme", "Autre"]],
-                         "other_date_request": ["Le tournoi se déroule t'il sur plus d'un jour ?",
+                         "other_date_request": ["Le tournoi se déroule-t-il sur plus d'un jour ?",
                                                 yes_no_menu],
                          "time_control": ["quel est le type de jeu souhaité?", ["Bullet", "Blitz", "Fast chess"]],
                          "set_match": "choisissez le match dont vous souhaitez saisir le score",
                          "abort_tournament": ["souhaitez-vous annuler définitivement le tournoi ?",
                                               yes_no_menu],
-                         "result_match_request": ["quel joueur à gagné le match?"],
+                         "result_match_request": ["quel joueur a gagné le match?"],
                          "load_new_database": ["Placer une nouvelle base de données dans le fichier '/data'\n"
                                                "à la racine du logiciel puis cliquer sur 'valider' pour\n"
                                                " charger la nouvelle base de données", ["Annuler", "Valider"]],
@@ -55,7 +58,7 @@ PROPOSAL_MENU_MESSAGE = {"gender": ["Rensseigner le genre du joueur", ["Femme", 
 
 # SIGN MESSAGE
 welcome_message = "Bienvenue dans chess management !"
-player_already_exists = "Le joueur exist déjà !"
+player_already_exists = "Le joueur existe déjà !"
 not_enough_players = "Vous avez moins de 8 joueurs dans la base de données !"
 add_comments = "ajouter un commentaire au tournoi"
 abort_tournament = "Abandonner le tournoi"
@@ -127,3 +130,20 @@ def tour_report_formatting(tour, index):
                                                                               tour[1],
                                                                               tour[2],
                                                                               tour[3])
+
+
+def tournament_rank_formatting(sorted_list):
+    """Function that displays the tournament ranking"""
+
+    chain = " 1er  : {} : {} pts\n" \
+            "2ième : {} : {} pts\n" \
+            "3ième : {} : {} pts\n" \
+            "4ième : {} : {} pts\n" \
+            "5ième : {} : {} pts\n" \
+            "6ième : {} : {} pts\n" \
+            "7ième : {} : {} pts\n" \
+            "8ième : {} : {} pts\n:".format(sorted_list[0][0], sorted_list[0][1], sorted_list[1][0], sorted_list[1][1],
+                                            sorted_list[2][0], sorted_list[2][1], sorted_list[3][0], sorted_list[3][1],
+                                            sorted_list[4][0], sorted_list[4][1], sorted_list[5][0], sorted_list[5][1],
+                                            sorted_list[6][0], sorted_list[6][1], sorted_list[7][0], sorted_list[7][1])
+    return chain
