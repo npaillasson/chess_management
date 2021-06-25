@@ -176,6 +176,9 @@ class Tournament:
         if len(self.round_list) < self.actual_tour_number:
             sorted_list = []
             for player_index in self.players_index_list:
+                print("player_index:", player_index)
+                print("self.players_points[player_index]:", self.players_points[player_index])
+                print("str(self.players_list[player_index].rank)",str(self.players_list[player_index].rank))
                 sorted_list.append((player_index, self.players_points[player_index],
                                     str(self.players_list[player_index].rank)))
             sorted_list = sorted(sorted_list, key=itemgetter(1, 2), reverse=True)

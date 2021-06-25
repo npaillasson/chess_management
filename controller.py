@@ -11,9 +11,6 @@ from operator import attrgetter
 
 import model
 from view import ChoiceMenu, FieldMenu, Sign, ValidationMenu
-from menu import MAIN_MENU_CHOICES, FIELD_MESSAGE, CORRECTION_MENU_CHOICES,\
-    PROPOSAL_MENU_MESSAGE, players_formatting, tournament_formatting
-from model import Player, PlayersDAO, Tournament, TournamentsDAO, DEFAULT_NUMBER_OF_TURNS
 import menu
 
 # regex that allows to check if the field contains only lettres or space or "-".
@@ -121,7 +118,7 @@ class Browse:
                 break
             player_information["rank"] = rank
             choice = self.validation_menu.\
-                printing_correction_menu(players_formatting(player_information))
+                printing_correction_menu(menu.players_formatting(player_information))
             if choice == 0:
                 self.add_player_in_dao(player_information)
                 break
@@ -132,7 +129,7 @@ class Browse:
         return self.main_menu_control()
 
     def tournament_creator_control(self):
-        """method which control the user input in the player creation menu"""
+        """Method which control the user input in the player creation menu"""
 
         while True:
             tournament_information = {}
@@ -155,7 +152,7 @@ class Browse:
             tournament_information["end_date"] = end_date
             number_of_turn = self.set_menu("number_of_turn", empty_field_permitted=True)
             if number_of_turn == "":
-                tournament_information["number_of_turn"] = DEFAULT_NUMBER_OF_TURNS
+                tournament_information["number_of_turn"] = model.DEFAULT_NUMBER_OF_TURNS
             else:
                 tournament_information["number_of_turn"] = number_of_turn
             players_index_list, players_object_list = self.add_players_in_tournament()
@@ -166,7 +163,7 @@ class Browse:
             tournament_comments = self.set_menu("tournament_comments", empty_field_permitted=True)
             tournament_information["tournament_comments"] = tournament_comments
 
-            choice = self.validation_menu.printing_correction_menu(tournament_formatting(tournament_information))
+            choice = self.validation_menu.printing_correction_menu(menu.tournament_formatting(tournament_information))
             if choice == 0:
                 self.add_tournament_in_dao(tournament_information)
                 self.tournaments_dao.tournaments_distribution(self.tournaments_dao.tournaments_list)
@@ -178,7 +175,7 @@ class Browse:
         return self.main_menu_control()
 
     def score_edit_controller(self):
-        """method which control the user input in the menu for editing player's scores"""
+        """Method which control the user input in the menu for editing player's scores"""
 
         displayed_list = self.display_player_list(self.players_dao.players_list)
         selected_player_index = self.choice_menu.printing_menu_index(displayed_list)
@@ -218,7 +215,7 @@ class Browse:
         while tournament.actual_tour_number <= tournament.number_of_turns:
             displayed_list, match_object_list = self.display_matches_list(tournament.round_list
                                                                           [tournament.actual_tour_number - 1])
-            selected_match_index = self.validation_menu.printing_proposal_menu(PROPOSAL_MENU_MESSAGE["set_match"],
+            selected_match_index = self.validation_menu.printing_proposal_menu(menu.PROPOSAL_MENU_MESSAGE["set_match"],
                                                                                validation_choices=displayed_list)
 
             if selected_match_index == len(displayed_list) - 1:
@@ -278,7 +275,7 @@ class Browse:
             return self.tournaments_management(tournament)
 
     def tours_management(self, tournament, match_object_list):
-        """method to manage the progress of a round and move to the next round if necessary"""
+        """Method to manage the progress of a round and move to the next round if necessary"""
 
         actual_match_list = match_object_list
         remaining_match = 0
@@ -300,9 +297,9 @@ class Browse:
             return self.tournaments_management(tournament)
 
     def aborted_tournament(self, tournament):
-        """function which manage the drop out af tournament"""
-        choice = self.validation_menu.printing_proposal_menu(PROPOSAL_MENU_MESSAGE["abort_tournament"][0],
-                                                             PROPOSAL_MENU_MESSAGE["abort_tournament"][1],
+        """Method which manage the drop out af tournament"""
+        choice = self.validation_menu.printing_proposal_menu(menu.PROPOSAL_MENU_MESSAGE["abort_tournament"][0],
+                                                             menu.PROPOSAL_MENU_MESSAGE["abort_tournament"][1],
                                                              index=True)
         if choice == 1:
             tournament.state = model.TOURNAMENTS_STATES[1]
@@ -314,7 +311,7 @@ class Browse:
 
     @staticmethod
     def add_tournament_points_to_player(tournament):
-        """function which add tournament point to the players at the end of the tournament"""
+        """Method which add tournament point to the players at the end of the tournament"""
         for index, player in enumerate(tournament.players_list):
             player.rank += tournament.players_points[index]
 
@@ -403,31 +400,18 @@ class Browse:
         self.tournaments_dao.save_dao()
         return self.tournaments_management(tournament)
 
-    def load_new_database(self): #A suppr?
-        """Method that allows to load a new database"""
-
-        choice = self.set_menu("load_new_database", index=True)
-        if choice == 0:
-            return self.main_menu_control()
-        else:
-            self.players_dao.dao = model.DAO_OBJECT
-            self.tournaments_dao.dao = model.DAO_OBJECT
-            self.players_dao.load_dao()
-            self.tournaments_dao.load_dao()
-            return self.main_menu_control()
-
     def data_controller(self, data_name, empty_field_permitted=False):
         """Method which control user's inputs conformity"""
 
         while True:
-            data = self.field_menu.printing_field(FIELD_MESSAGE[data_name][0])
+            data = self.field_menu.printing_field(menu.FIELD_MESSAGE[data_name][0])
             if data == stop_function:
                 return data
             elif data_name in str_controller:
                 if self.str_control_expression.match(data) is not None:
                     return data.strip()
                 else:
-                    self.sign.printing_sign(FIELD_MESSAGE[data_name][1])
+                    self.sign.printing_sign(menu.FIELD_MESSAGE[data_name][1])
             elif data_name in str_int_controller:
                 if self.str_int_control_expression.match(data) is not None:
                     return data.strip()
@@ -439,26 +423,26 @@ class Browse:
                 elif not data and empty_field_permitted:
                     return ""
                 else:
-                    self.sign.printing_sign(FIELD_MESSAGE[data_name][1])
+                    self.sign.printing_sign(menu.FIELD_MESSAGE[data_name][1])
 
     # which checks if the date exists and if it has already been exceeded.
     def date_control(self, data_name, date_not_passed=True, greater_than=None):
-        """Function that check the date conformity"""
+        """Method that check the date conformity"""
 
         while True:
-            data = self.field_menu.printing_field(FIELD_MESSAGE[data_name][0])
+            data = self.field_menu.printing_field(menu.FIELD_MESSAGE[data_name][0])
             if data == stop_function:
                 return data
             try:
                 time_object = time.strptime(data, DATE_FORMAT)
             except ValueError:
-                self.sign.printing_sign(FIELD_MESSAGE[data_name][1])
+                self.sign.printing_sign(menu.FIELD_MESSAGE[data_name][1])
                 continue
             if date_not_passed:
                 if time_object <= time.localtime():
                     return data
                 else:
-                    self.sign.printing_sign(FIELD_MESSAGE[data_name][1])
+                    self.sign.printing_sign(menu.FIELD_MESSAGE[data_name][1])
             if not date_not_passed and not greater_than:
                 return data
             if not date_not_passed and greater_than:
@@ -466,14 +450,14 @@ class Browse:
                 if time_object > compared_time_object:
                     return data
                 else:
-                    self.sign.printing_sign(FIELD_MESSAGE[data_name][1])
+                    self.sign.printing_sign(menu.FIELD_MESSAGE[data_name][1])
 
     def set_menu(self, data_name, index=None, empty_field_permitted=False, date_not_passed=True, greater_than=None):
         """Method which allows to set the menu and return the value"""
 
         if data_name in no_controller:
-            value = self.validation_menu.printing_proposal_menu(PROPOSAL_MENU_MESSAGE[data_name][0],
-                                                                PROPOSAL_MENU_MESSAGE[data_name][1],
+            value = self.validation_menu.printing_proposal_menu(menu.PROPOSAL_MENU_MESSAGE[data_name][0],
+                                                                menu.PROPOSAL_MENU_MESSAGE[data_name][1],
                                                                 index=index)
             return value
         elif data_name in date_controller:
@@ -488,13 +472,13 @@ class Browse:
                 return value
 
     def add_player_in_dao(self, player_information):
-        """function which add a player into the database"""
+        """Method which add a player into the database"""
 
-        new_player = Player(player_information["last_name"],
-                            player_information["first_name"],
-                            player_information["date_of_birth"],
-                            player_information["gender"],
-                            player_information["rank"])
+        new_player = model.Player(player_information["last_name"],
+                                  player_information["first_name"],
+                                  player_information["date_of_birth"],
+                                  player_information["gender"],
+                                  player_information["rank"])
 
         if self.players_dao.players_exists(new_player):
             self.sign.printing_sign(menu.player_already_exists)
@@ -506,18 +490,18 @@ class Browse:
         return self.main_menu_control()
 
     def add_tournament_in_dao(self, tournament_information):
-        """function which add a tournament into the database"""
+        """Method which add a tournament into the database"""
 
-        new_tournament = Tournament(tournament_name=tournament_information["tournament_name"],
-                                    tournament_place=tournament_information["tournament_place"],
-                                    tournament_date=tournament_information["tournament_date"],
-                                    end_date=tournament_information["end_date"],
-                                    players_index_list=tournament_information["players_index_list"],
-                                    players_object_list=tournament_information["players_object_list"],
-                                    number_of_turns=tournament_information["number_of_turn"],
-                                    time_controller=tournament_information["time_control"],
-                                    tournament_comments=tournament_information["tournament_comments"],
-                                    round_list=None,)
+        new_tournament = model.Tournament(tournament_name=tournament_information["tournament_name"],
+                                          tournament_place=tournament_information["tournament_place"],
+                                          tournament_date=tournament_information["tournament_date"],
+                                          end_date=tournament_information["end_date"],
+                                          players_index_list=tournament_information["players_index_list"],
+                                          players_object_list=tournament_information["players_object_list"],
+                                          number_of_turns=tournament_information["number_of_turn"],
+                                          time_controller=tournament_information["time_control"],
+                                          tournament_comments=tournament_information["tournament_comments"],
+                                          round_list=None,)
 
         self.tournaments_dao.tournaments_list.append(new_tournament)
         self.tournaments_dao.save_dao()
@@ -615,7 +599,7 @@ class Browse:
                 return self.printing_tours_report(tournament)
 
     def printing_tournament_ranking(self, tournament, to_main_menu=False):
-        """Function that displays the tournament ranking"""
+        """Method that displays the tournament ranking"""
         sorted_list = []
         for index, points_amount in enumerate(tournament.players_points):
             sorted_list.append((tournament.players_list[index].last_name + " "
@@ -635,14 +619,14 @@ class Browse:
 def launch_program():
     """function that launch the application"""
 
-    browser = Browse(main_menu_choice=MAIN_MENU_CHOICES,
-                     correction_menu_choice=CORRECTION_MENU_CHOICES,
+    browser = Browse(main_menu_choice=menu.MAIN_MENU_CHOICES,
+                     correction_menu_choice=menu.CORRECTION_MENU_CHOICES,
                      str_control_expression=STR_CONTROL_EXPRESSION,
                      str_int_control_expression=STR_INT_CONTROL_EXPRESSION,
                      date_control_expression=DATE_FORMAT,
                      int_control_expression=INT_CONTROL_EXPRESSION,
-                     players_dao=PlayersDAO,
-                     tournaments_dao=TournamentsDAO)
+                     players_dao=model.PlayersDAO,
+                     tournaments_dao=model.TournamentsDAO)
 
     browser.players_dao.load_dao()
     browser.tournaments_dao.load_dao()
