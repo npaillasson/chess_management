@@ -40,7 +40,7 @@ date_controller = ["date_of_birth", "tournament_date", "end_date"]
 int_controller = ["rank", "number_of_turn"]
 # Data already checked as proposal list
 no_controller = ["gender", "selected_player", "time_control", "participating_players", "other_date_request",
-                 "score_request", "load_new_database"]
+                 "score_request", "load_new_database", "launch_tournament"]
 
 
 class Browse:
@@ -211,7 +211,9 @@ class Browse:
     def tournaments_management(self, tournament):
         """Method that allows to manage the progress of a tournament and enter the results of a match"""
 
-        tournament.swiss_system()
+        if tournament.actual_tour_number != len(tournament.round_list):
+
+            return self.start_tour(tournament)
         self.sign.printing_sign(menu.actual_turn_formating(tournament))
         while tournament.actual_tour_number <= tournament.number_of_turns:
             displayed_list, match_object_list = self.display_matches_list(tournament.round_list
@@ -253,15 +255,27 @@ class Browse:
                         if match.winner_absolute_index == model.DRAW_INDEX:
                             tournament.players_points[player_1_index] += model.NULL_POINT
                             tournament.players_points[player_2_index] += model.NULL_POINT
-                            self.tournaments_dao.save_dao()
                         else:
                             tournament.players_points[match.winner_absolute_index] += model.WINNER_POINT
-                            self.tournaments_dao.save_dao()
+                        match.end_time = time.strftime(model.MATCH_DATE_FORMAT)
+                        self.tournaments_dao.save_dao()
                         return self.tours_management(tournament, match_object_list)
                     if choice == 1:
                         continue
                     else:
                         return self.select_tournaments()
+
+    def start_tour(self, tournament):
+        """Method to launch a new tour"""
+
+        choice = self.set_menu("launch_tournament", index=True)
+
+        if choice == 0:
+            return self.main_menu_control()
+        else:
+            tournament.swiss_system()
+            self.tournaments_dao.save_dao()
+            return self.tournaments_management(tournament)
 
     def tours_management(self, tournament, match_object_list):
         """method to manage the progress of a round and move to the next round if necessary"""
@@ -269,7 +283,7 @@ class Browse:
         actual_match_list = match_object_list
         remaining_match = 0
         for match in actual_match_list:
-            if match.winner_absolute_index is None:
+            if match.winner_absolute_index == model.WINNER_NOT_SET:
                 remaining_match += 1
         if remaining_match == 0:
             tournament.actual_tour_number += 1
@@ -371,7 +385,7 @@ class Browse:
         displayed_list = []
         match_list_object = []
         for match in round_list:
-            if match.winner_absolute_index is None:
+            if match.winner_absolute_index == model.WINNER_NOT_SET:
                 displayed_list.append(match.display_match_for_choice())
                 match_list_object.append(match)
         displayed_list.append(menu.add_comments)

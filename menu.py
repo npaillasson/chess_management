@@ -50,7 +50,8 @@ PROPOSAL_MENU_MESSAGE = {"gender": ["Rensseigner le genre du joueur", ["Femme", 
                          "result_match_request": ["quel joueur à gagné le match?"],
                          "load_new_database": ["Placer une nouvelle base de données dans le fichier '/data'\n"
                                                "à la racine du logiciel puis cliquer sur 'valider' pour\n"
-                                               " charger la nouvelle base de données", ["Annuler", "Valider"]]}
+                                               " charger la nouvelle base de données", ["Annuler", "Valider"]],
+                         "launch_tournament": ["Souhaitez-vous commencer le round?", yes_no_menu]}
 
 # SIGN MESSAGE
 welcome_message = "Bienvenue dans chess management !"
