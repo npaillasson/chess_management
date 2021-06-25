@@ -190,7 +190,7 @@ class Tournament:
 
     def __repr__(self):
         """Function that defines how a tournament object is represented"""
-        return "Tournoi: {}, lieu: {}, date de debut: {}, date de fin: {}, etat:{}".format(self.tournament_name,
+        return "Tournoi: {}, lieu: {}, date de début: {}, date de fin: {}, état:{}".format(self.tournament_name,
                                                                                            self.tournament_place,
                                                                                            self.tournament_date,
                                                                                            self.end_date,

@@ -293,7 +293,7 @@ class Browse:
                 self.add_tournament_points_to_player(tournament)
                 self.tournaments_dao.save_dao()
                 self.tournaments_dao.tournaments_distribution(self.tournaments_dao.tournaments_list)
-                return self.main_menu_control()
+                return self.printing_tournament_ranking(tournament, to_main_menu=True)
             else:
                 return self.tournaments_management(tournament)
         else:
@@ -401,10 +401,9 @@ class Browse:
             return self.tournaments_management(tournament)
         tournament.tournament_comments = tournament.tournament_comments + "|{}|".format(new_comment)
         self.tournaments_dao.save_dao()
-        self.tournaments_dao.load_dao()
         return self.tournaments_management(tournament)
 
-    def load_new_database(self):
+    def load_new_database(self): #A suppr?
         """Method that allows to load a new database"""
 
         choice = self.set_menu("load_new_database", index=True)
@@ -531,7 +530,7 @@ class Browse:
 
         choice = self.choice_menu.printing_menu_index(menu.REPORTS_MAIN_MENU)
         if choice == 0:
-            return self.report_sub_menu(self.players_dao.players_list)
+            return self.report_sub_menu(players_list=self.players_dao.players_list)
         elif choice == 1:
             return self.printing_tournament_report()
         elif choice == 2:
@@ -541,14 +540,18 @@ class Browse:
         else:
             return self.main_menu_control()
 
-    def report_sub_menu(self, players_list):
+    def report_sub_menu(self, players_list=None, with_tournament_ranking=False, tournament=None):
         """Method that manages the reports sub menu"""
-
-        choice = self.choice_menu.printing_menu_index(menu.REPORTS_SUB_MENU)
+        if with_tournament_ranking:
+            choice = self.choice_menu.printing_menu_index(menu.REPORTS_SUB_MENU_TOURNAMENT)
+        else:
+            choice = self.choice_menu.printing_menu_index(menu.REPORTS_SUB_MENU_PLAYER)
         if choice == 0:
             return self.printing_players_report(players_list)
         elif choice == 1:
             return self.printing_players_report(players_list, alpha=False)
+        elif with_tournament_ranking and choice == 2:
+            return self.printing_tournament_ranking(tournament=tournament)
         else:
             return self.main_menu_control()
 
@@ -606,9 +609,27 @@ class Browse:
         else:
             tournament = tournament_objects_list[tournament_index]
             if players_report:
-                return self.report_sub_menu(tournament.players_list)
+                return self.report_sub_menu(tournament=tournament, players_list=tournament.players_list,
+                                            with_tournament_ranking=True)
             elif tours_report:
                 return self.printing_tours_report(tournament)
+
+    def printing_tournament_ranking(self, tournament, to_main_menu=False):
+        """Function that displays the tournament ranking"""
+        sorted_list = []
+        for index, points_amount in enumerate(tournament.players_points):
+            sorted_list.append((tournament.players_list[index].last_name + " "
+                                + tournament.players_list[index].first_name, points_amount))
+        sorted_list = sorted(sorted_list, key=lambda column: column[1], reverse=True)
+        display_chain = menu.quit_report + menu.tournament_rank_formatting(sorted_list)
+        while True:
+            quit_report = self.field_menu.printing_field(display_chain)
+            if quit_report == stop_function:
+                break
+        if to_main_menu:
+            return self.main_menu_control()
+        else:
+            return self.report_main_menu()
 
 
 def launch_program():
