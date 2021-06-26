@@ -104,19 +104,16 @@ class Browse:
                 break
             player_information["last_name"] = last_name.upper()
             first_name = self.set_menu("first_name")
-            if last_name == stop_function:
+            if first_name == stop_function:
                 break
             player_information["first_name"] = first_name.capitalize()
-            date_of_birth = self.set_menu("date_of_birth")
-            if date_of_birth == stop_function:
+            player_information["date_of_birth"] = self.set_menu("date_of_birth")
+            if player_information["date_of_birth"] == stop_function:
                 break
-            player_information["date_of_birth"] = date_of_birth
-            gender = self.set_menu("gender")
-            player_information["gender"] = gender
-            rank = self.set_menu("rank")
-            if rank == stop_function:
+            player_information["gender"] = self.set_menu("gender")
+            player_information["rank"] = self.set_menu("rank")
+            if player_information["rank"] == stop_function:
                 break
-            player_information["rank"] = rank
             choice = self.validation_menu.\
                 printing_correction_menu(menu.players_formatting(player_information))
             if choice == 0:
@@ -132,37 +129,32 @@ class Browse:
         """Method which control the user input in the player creation menu"""
 
         while True:
-            tournament_information = {}
-            tournament_name = self.set_menu("tournament_name")
-            if tournament_name == stop_function:
+            tournament_information = {"tournament_name": self.set_menu("tournament_name")}
+            if tournament_information["tournament_name"] == stop_function:
                 break
-            tournament_information["tournament_name"] = tournament_name
-            tournament_place = self.set_menu("tournament_place")
-            if tournament_place == stop_function:
+            tournament_information["tournament_place"] = self.set_menu("tournament_place")
+            if tournament_information["tournament_place"] == stop_function:
                 break
-            tournament_information["tournament_place"] = tournament_place
-            tournament_date = self.set_menu("tournament_date", date_not_passed=False)
-            tournament_information["tournament_date"] = tournament_date
+            tournament_information["tournament_date"] = self.set_menu("tournament_date",
+                                                                      date_not_passed=False)
+            if tournament_information["tournament_date"] == stop_function:
+                break
             other_date_request = self.set_menu("other_date_request", index=True)
             if other_date_request == 1:
-                end_date = self.set_menu("end_date", date_not_passed=False,
-                                         greater_than=tournament_information["tournament_date"])
+                tournament_information["end_date"] = self.set_menu("end_date", date_not_passed=False,
+                                                                   greater_than=tournament_information
+                                                                   ["tournament_date"])
             else:
-                end_date = tournament_date
-            tournament_information["end_date"] = end_date
-            number_of_turn = self.set_menu("number_of_turn", empty_field_permitted=True)
-            if number_of_turn == "":
+                tournament_information["end_date"] = tournament_information["tournament_date"]
+            tournament_information["number_of_turn"] = self.set_menu("number_of_turn", empty_field_permitted=True)
+            if tournament_information["number_of_turn"] == "":
                 tournament_information["number_of_turn"] = model.DEFAULT_NUMBER_OF_TURNS
-            else:
-                tournament_information["number_of_turn"] = number_of_turn
             players_index_list, players_object_list = self.add_players_in_tournament()
             tournament_information["players_index_list"] = players_index_list
             tournament_information["players_object_list"] = players_object_list
-            time_control = self.set_menu("time_control")
-            tournament_information["time_control"] = time_control
-            tournament_comments = self.set_menu("tournament_comments", empty_field_permitted=True)
-            tournament_information["tournament_comments"] = tournament_comments
-
+            tournament_information["time_control"] = self.set_menu("time_control")
+            tournament_information["tournament_comments"] = self.set_menu("tournament_comments",
+                                                                          empty_field_permitted=True)
             choice = self.validation_menu.printing_correction_menu(menu.tournament_formatting(tournament_information))
             if choice == 0:
                 self.add_tournament_in_dao(tournament_information)
@@ -229,38 +221,43 @@ class Browse:
 
             else:
                 match = match_object_list[selected_match_index]
-                while True:
+                return self.entering_matches_results(match, tournament, match_object_list)
 
-                    player_1 = match.players_object_list[0]
-                    player_1_index = tournament.players_list.index(player_1)
-                    player_2 = match.players_object_list[1]
-                    player_2_index = tournament.players_list.index(player_2)
-                    players_str_list = [str(player_1), str(player_2), model.DRAW_KEY_WORD]
-                    players_index_list = [player_1_index, player_2_index, model.DRAW_INDEX]
-                    # winner is an int number
-                    winner = self.validation_menu.printing_proposal_menu(
-                        menu.PROPOSAL_MENU_MESSAGE["result_match_request"][0], players_str_list)
+    def entering_matches_results(self, match, tournament, match_object_list):
+        """method to enter the results of matches"""
 
-                    choice = self.validation_menu.printing_correction_menu(
-                        menu.match_formatting(player_1, player_2,
-                                              winner_player=players_str_list[winner]))
+        while True:
 
-                    if choice == 0:
-                        match.winner_absolute_index = players_index_list[winner]
-                        match.winner_relative_index = winner
+            player_1 = match.players_object_list[0]
+            player_1_index = tournament.players_list.index(player_1)
+            player_2 = match.players_object_list[1]
+            player_2_index = tournament.players_list.index(player_2)
+            players_str_list = [str(player_1), str(player_2), model.DRAW_KEY_WORD]
+            players_index_list = [player_1_index, player_2_index, model.DRAW_INDEX]
+            # winner is an int number
+            winner = self.validation_menu.printing_proposal_menu(
+                menu.PROPOSAL_MENU_MESSAGE["result_match_request"][0], players_str_list)
 
-                        if match.winner_absolute_index == model.DRAW_INDEX:
-                            tournament.players_points[player_1_index] += model.NULL_POINT
-                            tournament.players_points[player_2_index] += model.NULL_POINT
-                        else:
-                            tournament.players_points[match.winner_absolute_index] += model.WINNER_POINT
-                        match.end_time = time.strftime(model.MATCH_DATE_FORMAT)
-                        self.tournaments_dao.save_dao()
-                        return self.tours_management(tournament, match_object_list)
-                    if choice == 1:
-                        continue
-                    else:
-                        return self.select_tournaments()
+            choice = self.validation_menu.printing_correction_menu(
+                menu.match_formatting(player_1, player_2,
+                                      winner_player=players_str_list[winner]))
+
+            if choice == 0:
+                match.winner_absolute_index = players_index_list[winner]
+                match.winner_relative_index = winner
+
+                if match.winner_absolute_index == model.DRAW_INDEX:
+                    tournament.players_points[player_1_index] += model.NULL_POINT
+                    tournament.players_points[player_2_index] += model.NULL_POINT
+                else:
+                    tournament.players_points[match.winner_absolute_index] += model.WINNER_POINT
+                match.end_time = time.strftime(model.MATCH_DATE_FORMAT)
+                self.tournaments_dao.save_dao()
+                return self.tours_management(tournament, match_object_list)
+            if choice == 1:
+                continue
+            else:
+                return self.select_tournaments()
 
     def start_tour(self, tournament):
         """Method to launch a new tour"""
