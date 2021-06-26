@@ -9,7 +9,7 @@ This project aims to create an offline software that allows to manage chess tour
 
 
 ## Table of contents
-1. [General information](#general-info)
+1. [General information](#general-information)
 2. [Technologies](#technologies)
 3. [Installation](#installation)
 4. [Documentation](#documentation)
@@ -29,7 +29,9 @@ This program allows you to manage chess tournaments, i.e:
 
 It also allows you to generate reports (player rating, list of matches ...). 
 
-This software has been designed according to the MVC model, so it is divided into three distinct parts: the **model**, the **view** and the **controller**. It is also PEP8 compliant.
+This software has been designed according to the MVC model,
+so it is divided into three distinct parts: the **model**,
+the **view** and the **controller**. It is also PEP8 compliant.
 
 
 ### What contains this repository?
@@ -85,7 +87,9 @@ This project also uses the modules **'re'**, **'time'**, **'os'**, **'sys'**, **
 
 ## Installation
 
-To use this script you need a bash Terminal, if you are on Windows, please use the bash terminal with "windows subsystem for linux" (WSL): [check here](https://docs.microsoft.com/en-us/windows/wsl/install-win10) for more information.
+To use this script you need a bash Terminal, if you are on Windows, please use the bash
+terminal with "windows subsystem for linux" (WSL): 
+[check here](https://docs.microsoft.com/en-us/windows/wsl/install-win10) for more information.
 
 To get this project on your computer you can clone it:
 ```
@@ -116,6 +120,13 @@ At the end, you can deactivate the virtual environment with:
 $ deactivate
 ```
 
+###How to generate a new flake8-html file?
+
+simply use:
+```
+$ flake8 --format=html --htmldir=flake-report --max-line-length=119 main.py model.py controller.py menu.py view.py
+```
+
 ###
 
 ##Documentation
@@ -127,15 +138,18 @@ This menu allows you to access the different functions of the software.
 While using the software, don't worry about saving, the script automatically saves all 
 modifications you make to the database (adding a player, adding a tournament, entering a score, etc.).
 
-If you already have a database in the right format, you can place it in the **'data/'** folder
-(instead of the current database) in the root of the project. This directory appears after the
-first use of the program. If you do this, please respect the following file name: 'chess_database.json'.
+If you already have a database in the right format,
+you can place it in the **'data/'** folder
+(instead of the current database) in the root of the project.
+This directory appears after the first use of the program.
+If you do this, please respect the following file name: 'chess_database.json'.
 
 * **Créer un joueur**
 
 This menu allows you to create new players in the database.
 
-Two players are considered identical if their name, surname and date of birth are the same.
+Two players are considered identical if their name,
+surname and date of birth are the same.
 Two identical players cannot be added to the database.
 
 * **Créer un tournoi**
@@ -158,7 +172,8 @@ Moreover you can also cancel a tournament in progress if needed.
 
 * **Générer des rapports** 
 
-This menu allows you to generate different reports (list of players, list of tournaments, etc.).
+This menu allows you to generate different reports
+(list of players, list of tournaments, etc.).
 
 * **Quitter le logiciel**
 

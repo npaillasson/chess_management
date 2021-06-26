@@ -120,10 +120,6 @@ class Match:
                        self.start_time,
                        self.end_time)
 
-    def match_date_time(self):
-        """Method that records the date and time of the start of the match."""
-        time.strftime('')
-
 
 class Tournament:
     """class which represent a tournament"""
@@ -175,9 +171,9 @@ class Tournament:
                 self.round_list.append(list_match)
         if len(self.round_list) < self.actual_tour_number:
             sorted_list = []
-            for player_index in self.players_index_list:
-                sorted_list.append((player_index, self.players_points[player_index],
-                                    str(self.players_list[player_index].rank)))
+            for relative_index, absolute_index in enumerate(self.players_index_list):
+                sorted_list.append((relative_index, self.players_points[relative_index],
+                                    str(self.players_list[relative_index].rank)))
             sorted_list = sorted(sorted_list, key=itemgetter(1, 2), reverse=True)
             while index != NUMBER_OF_PLAYER:
                 player_1_index = sorted_list[index][0]
