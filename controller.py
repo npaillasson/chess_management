@@ -76,14 +76,14 @@ class Browse:
     def main_menu_control(self):
         """main menu controller function"""
         choice = self.choice_menu.printing_menu_index(self.main_menu_choice)
-        if choice == 0:  # launch the players creation menu
+        if choice == 0:
             return self.player_creator_control()
-        elif choice == 1:  # launch the tournaments creation menu
+        elif choice == 1:
             if len(self.players_dao.players_list) < 8:
                 self.sign.printing_sign(menu.not_enough_players)
                 return self.main_menu_control()
             return self.tournament_creator_control()
-        elif choice == 2:  # launch the menu for editing player's scores #A continuer!
+        elif choice == 2:
             return self.score_edit_controller()
         elif choice == 3:
             return self.select_tournaments()
@@ -93,7 +93,6 @@ class Browse:
             self.tournaments_dao.save_dao()
             sys.exit(0)
 
-    # function that manage the players creation feature
     def player_creator_control(self):
         """method which control the user input in the player creation menu"""
 
@@ -172,7 +171,7 @@ class Browse:
         displayed_list = self.display_player_list(self.players_dao.players_list)
         selected_player_index = self.choice_menu.printing_menu_index(displayed_list)
 
-        # if the user choose the quit option (which is the last one on the list
+        # if the user chooses the quit option (which is the last one in the list)
         if selected_player_index == len(displayed_list) - 1:
             return self.main_menu_control()
         else:
@@ -315,9 +314,9 @@ class Browse:
     def add_players_in_tournament(self):
         """method which allows to add 8 players in a tournament"""
 
-        # On a deux liste, une avec la représentation des joueurs en str
-        # pour le menu et l'autre contenant les objets joueurs pour récuperer
-        # l'index reel dans la liste des joueur de la base de données
+        # We have two lists, one with the representation of the players in str
+        # for the menu and the other one containing the player objects to get
+        # the real index in the list of players in the database
         displayed_list, players_list_object = self.display_player_list(self.players_dao.players_list, object_list=True)
         participating_players_index_list = []
         participating_players_object_list = []
@@ -422,7 +421,6 @@ class Browse:
                 else:
                     self.sign.printing_sign(menu.FIELD_MESSAGE[data_name][1])
 
-    # which checks if the date exists and if it has already been exceeded.
     def date_control(self, data_name, date_not_passed=True, greater_than=None):
         """Method that check the date conformity"""
 

@@ -124,7 +124,7 @@ $ deactivate
 
 simply use:
 ```
-$ flake8 --format=html --htmldir=flake-report main.py model.py controller.py menu.py view.py
+$ flake8 --format=html --htmldir=flake-report --max-line-length=119 main.py model.py controller.py menu.py view.py
 ```
 
 ###
